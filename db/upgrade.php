@@ -42,5 +42,20 @@ function xmldb_recommend_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
+    if ($oldversion < 2016071600) {
+
+        // Define index status (not unique) to be added to recommend_request.
+        $table = new xmldb_table('recommend_request');
+        $index = new xmldb_index('status', XMLDB_INDEX_NOTUNIQUE, array('status'));
+
+        // Conditionally launch add index status.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Recommend savepoint reached.
+        upgrade_mod_savepoint(true, 2016071600, 'recommend');
+    }
+
     return true;
 }

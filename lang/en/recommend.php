@@ -28,6 +28,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['addrequest'] = 'Request recommendation';
 $string['maxrequests'] = 'Maximum requests allowed';
 $string['maxrequests_help'] = 'Maximum number of requests the student is allowed to send. '
         . 'It is reasonable to set this value low to encourage student to pre-confirm with '
@@ -43,9 +44,20 @@ $string['modulename_help'] = 'Use the Recommendation request module to allow use
 $string['recommend:addinstance'] = 'Add a new Recommendation request activity';
 $string['recommend:request'] = 'Request new recommendation';
 $string['recommend:viewdetails'] = 'View the recommendation details (requested and completed)';
+$string['recommendatorname'] = 'Name of the recommending person';
 $string['recommendfieldset'] = 'Requests options';
 $string['recommendname'] = 'Name';
 $string['recommendname_help'] = 'Name of the activity as displayed on the course page. Not shown to the recommending person.';
 $string['recommend'] = 'recommend';
+$string['requestinstructions'] = 'Please use this form to send requests to up to {$a} people you would like to recommend you. They will be able to fill the recommendation form online.';
+$string['status'] = 'Status';
+$string['status0'] = 'Scheduled';
+$string['status1'] = 'Request sent';
+$string['status2'] = 'Request rejected';
+$string['status3'] = 'Recommendation completed';
+$string['status4'] = 'Recommendation rejected';
+$string['status5'] = 'Recommendation accepted';
+$string['timerequested'] = 'Requested';
+$string['timecompleted'] = 'Completed';
 $string['pluginadministration'] = 'Recommendation request administration';
 $string['pluginname'] = 'Recommendation request';

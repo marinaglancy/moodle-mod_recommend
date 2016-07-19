@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Example constant, you probably want to remove this :-)
  */
-define('RECOMMEND_ULTIMATE_ANSWER', 42);
+//define('RECOMMEND_ULTIMATE_ANSWER', 42);
 
 /* Moodle core API */
 

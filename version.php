@@ -28,7 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_recommend';
-$plugin->version = 2016071500;
+$plugin->version = 2016071600;
 $plugin->release = 'v1.0';
 $plugin->requires = 2016052300;
 $plugin->maturity = MATURITY_ALPHA;
