@@ -78,7 +78,7 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/course:manageactivities',
     ),
 
-    'mod/recommend:approve' => array(
+    'mod/recommend:accept' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(

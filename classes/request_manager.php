@@ -159,7 +159,7 @@ class mod_recommend_request_manager {
                 $status .= '<br>'.html_writer::link($deleteurl, get_string('delete'),
                         ['class' => 'deleterequest']);
             }
-            $cells = [$request->email, $request->name, $status];
+            $cells = [$request->name, $request->email, $status];
             $table->data[] = new html_table_row($cells);
         }
         return $table;
@@ -178,12 +178,13 @@ class mod_recommend_request_manager {
 
     public function delete_request($requestid) {
         global $DB;
-        if (!$request = $this->get_request_by_id($requestid)) {
+        $requests = $this->get_requests();
+        if (!isset($requests[$requestid])) {
             return false;
         }
         $DB->delete_records('recommend_reply', ['requestid' => $requestid]);
         $DB->delete_records('recommend_request', ['id' => $requestid]);
-        \mod_recommend\event\request_deleted::create_from_request($this->cm, $request)->trigger();
+        \mod_recommend\event\request_deleted::create_from_request($this->cm, $requests[$requestid])->trigger();
         unset($this->requests[$requestid]);
         return true;
     }
@@ -199,12 +200,12 @@ class mod_recommend_request_manager {
     }
 
     public function can_view_requests() {
-        $caps = ['mod/recommend:viewdetails', 'mod/recommend:approve'];
+        $caps = ['mod/recommend:viewdetails', 'mod/recommend:accept'];
         return has_any_capability($caps, $this->cm->context);
     }
 
-    public function can_approve_requests() {
-        return has_capability('mod/recommend:approve', $this->cm->context);
+    public function can_accept_requests() {
+        return has_capability('mod/recommend:accept', $this->cm->context);
     }
 
     /**

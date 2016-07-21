@@ -494,7 +494,7 @@ function recommend_comment_permissions($params) {
         $request = $DB->get_record('recommend_request', ['id' => $params['itemid']]);
         if ($request) {
             list($course, $cm) = get_course_and_cm_from_instance($request->recommendid, 'recommend');
-            $caps = ['mod/recommend:viewdetails', 'mod/recommend:approve'];
+            $caps = ['mod/recommend:viewdetails', 'mod/recommend:accept'];
             if (has_any_capability($caps, $cm->context) && can_access_course($course) && $cm->uservisible) {
                 $canview = $canpost = true;
             }

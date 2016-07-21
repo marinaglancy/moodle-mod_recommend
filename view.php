@@ -83,8 +83,8 @@ if ($action === null) {
         $status = $statuserror;
     }
     redirect($viewurl, $message, 3, $status);
-} else if ($action === 'approverequest' && $requestid &&
-        $manager->can_approve_requests() && confirm_sesskey()) {
+} else if ($action === 'acceptrequest' && $requestid &&
+        $manager->can_accept_requests() && confirm_sesskey()) {
     $message = '';
     if ($manager->accept_request($requestid)) {
         $message = 'Recommendation accepted'; //TODO
@@ -92,7 +92,7 @@ if ($action === null) {
     redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']),
             $message, 3, $statussuccess);
 } else if ($action === 'rejectrequest' && $requestid &&
-        $manager->can_approve_requests() && confirm_sesskey()) {
+        $manager->can_accept_requests() && confirm_sesskey()) {
     $message = '';
     if ($manager->reject_request($requestid)) {
         $message = 'Recommendation rejected'; // TODO

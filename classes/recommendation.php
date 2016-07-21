@@ -78,6 +78,10 @@ class mod_recommend_recommendation {
         return $this->request->secret;
     }
 
+    public function get_request_email() {
+        return $this->request->email;
+    }
+
     public function get_questions() {
         global $DB;
         if ($this->questions === null) {
@@ -101,8 +105,6 @@ class mod_recommend_recommendation {
             $rawvalue = isset($data->{'question'.$qid}) ? $data->{'question'.$qid} : null;
             if ($rawvalue === null) {
                 $value = null;
-            } else if ($question->type === 'radio') {
-                $value = reset($rawvalue);
             } else if ($question->type === 'textarea') {
                 $value = format_text($rawvalue['text'],
                         $rawvalue['format'],
@@ -164,13 +166,13 @@ class mod_recommend_recommendation {
             $form->display();
 
             if ($this->request->status == mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED &&
-                    has_capability('mod/recommend:approve', $this->cm->context)) {
+                    has_capability('mod/recommend:accept', $this->cm->context)) {
                 echo '<hr>';
-                $urlapprove = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
-                    'action' => 'approverequest', 'requestid' => $this->request->id, 'sesskey' => sesskey()]);
+                $urlaccept = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
+                    'action' => 'acceptrequest', 'requestid' => $this->request->id, 'sesskey' => sesskey()]);
                 $urlreject = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
                     'action' => 'rejectrequest', 'requestid' => $this->request->id, 'sesskey' => sesskey()]);
-                echo '<p>'.html_writer::link($urlapprove, 'Approve').'<br>'; // TODO string
+                echo '<p>'.html_writer::link($urlaccept, 'Accept').'<br>'; // TODO string
                 echo html_writer::link($urlreject, 'Reject').'</p>'; // TODO string
             }
         }

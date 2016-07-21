@@ -15,52 +15,48 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Contains class mod_recommend\event\request_rejected
+ * mod_recommend data generator.
  *
  * @package    mod_recommend
  * @copyright  2016 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-namespace mod_recommend\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Class mod_recommend\event\request_rejected
+ * mod_recommend data generator class.
  *
  * @package    mod_recommend
  * @copyright  2016 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class request_rejected extends request_updated {
+class mod_recommend_generator extends testing_module_generator {
 
     /**
-     * Initialize the event
+     * @var int keep track of how many pages have been created.
      */
-    protected function init() {
-        parent::init();
-        $this->data['edulevel'] = self::LEVEL_TEACHING;
+    protected $pagecount = 0;
+
+    /**
+     * To be called from data reset code only,
+     * do not use in tests.
+     * @return void
+     */
+    public function reset() {
+        $this->pagecount = 0;
+        parent::reset();
     }
 
-    /**
-     * Returns description of what happened.
-     *
-     * @return string
-     */
-    public function get_description() {
-        return "The user with id '$this->userid' rejected recommendation " .
-                "for the user with id '$this->relateduserid' following request '" .
-                "{$this->objectid}' in the activity with " .
-                "course module id '$this->contextinstanceid'.";
-    }
+    public function create_instance($record = null, array $options = null) {
+        global $CFG;
 
-    /**
-     * Return localised event name.
-     *
-     * @return string
-     */
-    public static function get_name() {
-        return get_string('eventrequestaccepted', 'recommend');
+        // Add default values for lesson.
+        $record = (array)$record + array(
+            'maxrequests' => 5,
+            'grade' => 0,
+        );
+
+        return parent::create_instance($record, (array)$options);
     }
 }

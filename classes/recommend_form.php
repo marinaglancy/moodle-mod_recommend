@@ -58,22 +58,22 @@ class mod_recommend_recommend_form extends moodleform {
                 // TODO make it wide.
                 $mform->addElement('static', $label, '', $qtext);
             } else if ($question->type === 'textarea') {
-                if (core_text::strlen($qtext)) {
-                    $mform->addElement('static', $label, '', $qtext);
-                }
                 $options = ['enable_filemanagement' => false, 'maxfiles' => 0];
                 if ($freeze) {
-                    $mform->addElement('static', $elementlabel, ''); // TODO css class
+                    $mform->addElement('static', $elementlabel, $qtext); // TODO css class
                 } else {
-                    $mform->addElement('editor', $elementlabel, '', null, $options);
+                    $mform->addElement('editor', $elementlabel, $qtext, null, $options);
                 }
             } else if ($question->type === 'textfield' || $question->type === 'email') {
                 if ($freeze) {
                     // TODO nicer
                     $mform->addElement('static', $elementlabel, $qtext);
                 } else {
-                    $mform->addElement('text', $elementlabel, $qtext);
+                    $mform->addElement('text', $elementlabel, $qtext, ['size' => 50]);
                     $mform->setType($elementlabel, PARAM_NOTAGS);
+                }
+                if ($question->type === 'email') {
+                    $mform->setDefault($elementlabel, $recommendation->get_request_email());
                 }
             } else if ($question->type === 'radio') {
                 $lines = preg_split('/\\n/', $question->addinfo, -1, PREG_SPLIT_NO_EMPTY);
@@ -85,12 +85,13 @@ class mod_recommend_recommend_form extends moodleform {
                         $elements[] = $mform->createElement('static',
                             $elementlabel.'_'.$parts[0], '', $prefix.' '.$parts[1]);
                     } else {
+                        $name = '<span class="accesshide">'.strip_tags($qtext).' </span>'.$parts[1];
                         $elements[] = $mform->createElement('radio',
-                            $elementlabel.'_'.$parts[0], '', $parts[1], $parts[0]);
+                            $elementlabel, '', $name, $parts[0]);
                     }
                 }
 
-                $mform->addElement('group', $elementlabel, $qtext, $elements);
+                $mform->addElement('group', $label, $qtext, $elements, array('&nbsp;'), false);
             }
         }
 
