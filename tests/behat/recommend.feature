@@ -1,4 +1,4 @@
-@mod @mod_recommend @xxx
+@mod @mod_recommend
 Feature: mod_recommend features
   In order to use this plugin
   As a user
@@ -49,8 +49,6 @@ Feature: mod_recommend features
     And "Scheduled" "text" should exist in the "Testperson1" "table_row"
     And I click on "Delete" "link" in the "Testperson2" "table_row"
     And I wait to be redirected
-    #And I follow "Continue"
-# TODO this is not present in 3.1
     Then I should see "Your recommendations"
     And I should see "Testperson1"
     And I should not see "Testperson2"
@@ -67,6 +65,7 @@ Feature: mod_recommend features
     And I press "Save changes"
     And I should see "Recommendation for Student 1"
     And I should see "Thank you, your recommendation has been processed."
+    And I am on homepage
     # Check that the student sees the recommendation as completed
     And I log in as "student1"
     And I follow "Course 1"
@@ -89,7 +88,6 @@ Feature: mod_recommend features
     And I should see "recommendator1@someaddress.invalid"
     And I click on "Accept" "link" in the "#region-main" "css_element"
     And I wait to be redirected
-    #And I follow "Continue"
     And I should see "Status:  Recommendation accepted"
     And I log out
     # Check that student can also see it as accepted
