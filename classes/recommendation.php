@@ -40,7 +40,8 @@ class mod_recommend_recommendation {
     protected $questions;
 
     public function __construct($secret, $id = null) {
-        global $DB;
+        global $DB, $CFG;
+        require_once($CFG->dirroot.'/mod/recommend/locallib.php');
         if ($secret) {
             $request = $DB->get_record('recommend_request', ['secret' => $secret]);
             if (!$request) {

@@ -485,11 +485,13 @@ function recommend_comment_validate($commentparam) {
  * @return array
  */
 function recommend_comment_permissions($params) {
-    global $DB;
+    global $DB, $CFG;
+    require_once($CFG->dirroot.'/mod/recommend/locallib.php');
     $canpost = false;
     $canview = false;
-    if ($params->commentarea === 'recommend_request') {
-        $request = $DB->get_record('recommend_request', ['id' => $params->itemid]);
+    $params = (array)$params;
+    if ($params['commentarea'] === 'recommend_request') {
+        $request = $DB->get_record('recommend_request', ['id' => $params['itemid']]);
         if ($request) {
             list($course, $cm) = get_course_and_cm_from_instance($request->recommendid, 'recommend');
             $caps = ['mod/recommend:viewdetails', 'mod/recommend:approve'];

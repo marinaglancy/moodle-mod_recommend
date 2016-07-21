@@ -29,6 +29,7 @@
 
 require_once(__DIR__.'/../../config.php');
 require_once(__DIR__.'/lib.php');
+require_once(__DIR__.'/locallib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
@@ -50,6 +51,13 @@ $recommend = $PAGE->activityrecord;
 $manager = new mod_recommend_request_manager($cm, $recommend);
 $viewurl = new moodle_url('/mod/recommend/view.php', ['id' => $cm->id]);
 
+$statussuccess = $statuserror = null;
+if (class_exists('core\output\notification')) {
+    // Notification status will not work in Moodle 2.7.
+    $statussuccess = \core\output\notification::NOTIFY_SUCCESS;
+    $statuserror = \core\output\notification::NOTIFY_ERROR;
+}
+
 if ($action === null) {
     \mod_recommend\event\course_module_viewed::create_from_cm($cm, $course, $recommend)->trigger();
     $completion = new completion_info($course);
@@ -64,30 +72,33 @@ if ($action === null) {
         redirect($viewurl);
     }
 } else if ($action === 'deleterequest' && $requestid) {
+    $message = '';
+    $status = $statussuccess;
     if ($manager->can_delete_request($requestid)) {
         require_sesskey();
         $manager->delete_request($requestid);
-        \core\notification::add('Request was deleted', // TODO
-                \core\output\notification::NOTIFY_SUCCESS);
+        $message = 'Request was deleted'; // TODO
     } else {
-        \core\notification::add('Sorry, this request can not be deleted', // TODO
-                \core\output\notification::NOTIFY_ERROR);
+        $message = 'Sorry, this request can not be deleted'; // TODO
+        $status = $statuserror;
     }
-    redirect($viewurl);
+    redirect($viewurl, $message, 3, $status);
 } else if ($action === 'approverequest' && $requestid &&
         $manager->can_approve_requests() && confirm_sesskey()) {
+    $message = '';
     if ($manager->accept_request($requestid)) {
-        \core\notification::add('Recommendation accepted', // TODO
-                \core\output\notification::NOTIFY_SUCCESS);
+        $message = 'Recommendation accepted'; //TODO
     }
-    redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']));
+    redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']),
+            $message, 3, $statussuccess);
 } else if ($action === 'rejectrequest' && $requestid &&
         $manager->can_approve_requests() && confirm_sesskey()) {
+    $message = '';
     if ($manager->reject_request($requestid)) {
-        \core\notification::add('Recommendation rejected', // TODO
-                \core\output\notification::NOTIFY_SUCCESS);
+        $message = 'Recommendation rejected'; // TODO
     }
-    redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']));
+    redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']),
+            $message, 3, $statussuccess);
 }
 
 // Print the page header.
