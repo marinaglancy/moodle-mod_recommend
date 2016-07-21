@@ -29,6 +29,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addrequest'] = 'Request recommendation';
+$string['completiononlyaccepted'] = 'Count only accepted recommendations';
+$string['completionrequired'] = 'Minimum number of completed recommendations: ';
 $string['eventrequestaccepted'] = 'Recommendation accepted';
 $string['eventrequestcreated'] = 'Recommendation request created';
 $string['eventrequestcompleted'] = 'Recommendation completed';
@@ -42,8 +44,6 @@ $string['maxrequests_help'] = 'Maximum number of requests a student is allowed t
         . 'However different circumstances may prevent recommending person from filling out'
         . 'the form and student should be allowed to send more requests than the required'
         . 'number of recommendations';
-$string['requiredrecommend'] = 'Required number of recommendations';
-$string['requiredrecommend_help'] = 'This setting works best in combination with completion criterion "Required number of recommendations received"';
 $string['modulename'] = 'Recommendation request';
 $string['modulenameplural'] = 'Recommendation requests';
 $string['modulename_help'] = 'Use the Recommendation request module to allow users to request recommendations from anybody including people who are not registered in Moodle';
@@ -67,3 +67,5 @@ $string['timerequested'] = 'Requested';
 $string['timecompleted'] = 'Completed';
 $string['pluginadministration'] = 'Recommendation request administration';
 $string['pluginname'] = 'Recommendation request';
+$string['requiredrecommendgroup'] = 'Recommendations received';
+$string['requiredrecommendgroup_help'] = 'If the setting "Count only accepted recommendations" is unchecked, completed recommendations that have not yet been reviewed by the teacher will be counted. However if later the completed recommendation becomes rejected by the teacher the completed activity may become incomplete again.';

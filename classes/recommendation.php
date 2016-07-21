@@ -88,7 +88,7 @@ class mod_recommend_recommendation {
     /**
      *
      * @global moodle_database $DB
-     * @param type $data
+     * @param stdClass $data
      */
     public function save($data) {
         global $DB;
@@ -120,10 +120,15 @@ class mod_recommend_recommendation {
         }
 
         //$DB->delete_records('recommend_reply', ['requestid' => $this->request->id]);
+        $now = time();
         $DB->insert_records('recommend_reply', $answers);
         $DB->update_record('recommend_request', ['id' => $this->request->id,
-            'status' => mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED]);
+            'status' => mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED,
+            'timecompleted' => $now]);
+        $this->request->status = mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED;
+        $this->request->timecompleted = $now;
         \mod_recommend\event\request_completed::create_from_request($this->cm, $this->request)->trigger();
+        self::update_completion($this->cm, $this->recommend, $this->request->userid);
         // TODO send email(s).
     }
 
@@ -179,5 +184,53 @@ class mod_recommend_recommendation {
         $comment = new comment($commentoptions);
         $comment->init();
         echo $comment->output();
+    }
+
+    protected static function update_completion(cm_info $cm, $recommend, $userid) {
+        global $CFG;
+        if (!$recommend->requiredrecommend) {
+            return;
+        }
+
+        require_once($CFG->libdir.'/completionlib.php');
+        // Update completion state
+        $completion = new completion_info($cm->get_course());
+        if ($completion->is_enabled($cm) && $recommend->requiredrecommend) {
+            $completion->update_state($cm, COMPLETION_UNKNOWN, $userid);
+        }
+    }
+
+    protected static function get_request_by_id($requestid) {
+        global $DB;
+        return $DB->get_record('recommend_request',
+            ['id' => $requestid,
+                'status' => mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED]);
+
+    }
+
+    public static function accept_request(cm_info $cm, $recommend, $requestid) {
+        global $DB;
+        if (!($request = self::get_request_by_id($requestid))) {
+            return false;
+        }
+        $DB->update_record('recommend_request', ['id' => $requestid,
+            'status' => mod_recommend_request_manager::STATUS_RECOMMENDATION_ACCEPTED]);
+        $request->status = mod_recommend_request_manager::STATUS_RECOMMENDATION_ACCEPTED;
+        \mod_recommend\event\request_accepted::create_from_request($cm, $request)->trigger();
+        self::update_completion($cm, $recommend, $request->userid);
+        return true;
+    }
+
+    public static function reject_request(cm_info $cm, $recommend, $requestid) {
+        global $DB;
+        if (!($request = self::get_request_by_id($requestid))) {
+            return false;
+        }
+        $DB->update_record('recommend_request', ['id' => $requestid,
+            'status' => mod_recommend_request_manager::STATUS_RECOMMENDATION_REJECTED]);
+        $request->status = mod_recommend_request_manager::STATUS_RECOMMENDATION_REJECTED;
+        \mod_recommend\event\request_rejected::create_from_request($cm, $request)->trigger();
+        self::update_completion($cm, $recommend, $request->userid);
+        return true;
     }
 }

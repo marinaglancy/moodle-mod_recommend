@@ -79,13 +79,6 @@ class mod_recommend_mod_form extends moodleform_mod {
         $mform->addRule('maxrequests', null, 'numeric', null, 'client');
         $mform->setDefault('maxrequests', 5);
 
-        $mform->addElement('text', 'requiredrecommend',
-                get_string('requiredrecommend', 'recommend'), array('size' => '5'));
-        $mform->addHelpButton('requiredrecommend', 'requiredrecommend', 'recommend');
-        $mform->setType('requiredrecommend', PARAM_INT);
-        $mform->addRule('requiredrecommend', null, 'numeric', null, 'client');
-        $mform->setDefault('requiredrecommend', 0);
-
         // Add standard grading elements.
         $this->standard_grading_coursemodule_elements();
 
@@ -94,5 +87,58 @@ class mod_recommend_mod_form extends moodleform_mod {
 
         // Add standard buttons, common to all modules.
         $this->add_action_buttons();
+    }
+
+    function add_completion_rules() {
+        $mform = $this->_form;
+
+        $group = array();
+        $group[] = $mform->createElement('checkbox', 'completionrequired', '',
+                get_string('completionrequired', 'recommend'));
+        $group[] = $mform->createElement('text', 'requiredrecommend', '', ['size' => 5]);
+        $group[] = $mform->createElement('checkbox', 'completiononlyaccepted',
+                '', get_string('completiononlyaccepted', 'recommend'));
+        $mform->addGroup($group, 'requiredrecommendgroup',
+                get_string('requiredrecommendgroup', 'recommend'), array(' ', '<br>'), false);
+        $mform->addHelpButton('requiredrecommendgroup', 'requiredrecommendgroup', 'recommend');
+        $mform->disabledIf('requiredrecommend', 'completionrequired', 'notchecked');
+        $mform->setType('requiredrecommend', PARAM_INT);
+        //$mform->addRule('requiredrecommend', null, 'numeric', null, 'client');
+        $mform->setDefault('requiredrecommend', 1);
+        $mform->disabledIf('completiononlyaccepted', 'completionrequired', 'notchecked');
+
+        return array('requiredrecommendgroup');
+    }
+
+    function completion_rule_enabled($data) {
+        return !empty($data['completionrequired']) && $data['requiredrecommend'] > 0;
+    }
+
+    public function get_data() {
+        $data = parent::get_data();
+        if (!$data) {
+            return false;
+        }
+        // Turn off completion setting if the checkbox is not ticked.
+        if (!empty($data->completionunlocked)) {
+            $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->completionrequired) || !$autocompletion) {
+                $data->requiredrecommend = 0;
+            }
+        }
+        $data->completiononlyaccepted = empty($data->completiononlyaccepted) ? 0 : 1;
+        return $data;
+    }
+
+    /**
+     * Enforce defaults here
+     *
+     * @param array $defaultvalues Form defaults
+     * @return void
+     **/
+    public function data_preprocessing(&$defaultvalues) {
+        // Set up the completion checkbox which is not part of standard data.
+        $defaultvalues['completionrequired'] =
+            !empty($defaultvalues['requiredrecommend']) ? 1 : 0;
     }
 }

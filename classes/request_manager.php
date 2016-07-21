@@ -44,8 +44,15 @@ class mod_recommend_request_manager {
     const STATUS_RECOMMENDATION_REJECTED = 4;
     const STATUS_RECOMMENDATION_ACCEPTED = 5;
 
-    public function __construct(cm_info $cm, $object) {
+    public function __construct(cm_info $cm, $object = null) {
+        global $DB;
         $this->cm = $cm;
+        if ($cm->modname !== 'recommend') {
+            throw new coding_exception('Course module for recommend module is expected');
+        }
+        if ($object === null) {
+            $object = $DB->get_record('recommend', ['id' => $cm->instance], '*', MUST_EXIST);
+        }
         $this->object = $object;
     }
 
@@ -57,11 +64,16 @@ class mod_recommend_request_manager {
         return $this->cm;
     }
 
+    public function get_userid() {
+        return $this->cm->get_modinfo()->userid;
+    }
+
     public function get_requests() {
-        global $DB, $USER;
+        global $DB;
         if ($this->requests === null) {
              $this->requests = $DB->get_records('recommend_request',
-                     ['recommendid' => $this->object->id, 'userid' => $USER->id]);
+                     ['recommendid' => $this->object->id,
+                         'userid' => $this->get_userid()]);
         }
         return $this->requests;
     }
@@ -97,9 +109,9 @@ class mod_recommend_request_manager {
     }
 
     protected function generate_secret($email, $name) {
-        global $USER, $DB;
+        global $DB;
         while (true) {
-            $secret = md5('secret/'.rand(1, 10000).'/'.$USER->id.'/'.$email.'/'.$name);
+            $secret = md5('secret/'.rand(1, 10000).'/'.$this->get_userid().'/'.$email.'/'.$name);
             if (!$DB->record_exists('recommend_request', ['secret' => $secret])) {
                 return $secret;
             }
@@ -107,11 +119,11 @@ class mod_recommend_request_manager {
     }
 
     protected function add_request($email, $name) {
-        global $USER, $DB;
+        global $DB;
         $this->get_requests();
         $record = (object)array(
             'recommendid' => $this->object->id,
-            'userid' => $USER->id,
+            'userid' => $this->get_userid(),
             'email' => $email,
             'name' => $name,
             'status' => 0, // TODO constant
@@ -164,15 +176,6 @@ class mod_recommend_request_manager {
         return $requests[$requestid]->status == self::STATUS_PENDING;
     }
 
-    protected function get_request_by_id($requestid) {
-        global $DB;
-        if (isset($this->requests[$requestid])) {
-            return $this->requests[$requestid];
-        } else {
-            return $DB->get_record('recommend_request', ['id' => $requestid]);
-        }
-    }
-
     public function delete_request($requestid) {
         global $DB;
         if (!$request = $this->get_request_by_id($requestid)) {
@@ -186,29 +189,13 @@ class mod_recommend_request_manager {
     }
 
     public function accept_request($requestid) {
-        global $DB;
-        if (!($request = $this->get_request_by_id($requestid)) ||
-                        $request->status != self::STATUS_RECOMMENDATION_COMPLETED) {
-            return false;
-        }
-        $DB->update_record('recommend_request', ['id' => $requestid,
-            'status' => self::STATUS_RECOMMENDATION_ACCEPTED]);
-        $request->status = self::STATUS_RECOMMENDATION_ACCEPTED;
-        \mod_recommend\event\request_accepted::create_from_request($this->cm, $request)->trigger();
-        return true;
+        return mod_recommend_recommendation::accept_request($this->cm,
+                $this->object, $requestid);
     }
 
     public function reject_request($requestid) {
-        global $DB;
-        if (!($request = $this->get_request_by_id($requestid)) ||
-                        $request->status != self::STATUS_RECOMMENDATION_COMPLETED) {
-            return false;
-        }
-        $DB->update_record('recommend_request', ['id' => $requestid,
-            'status' => self::STATUS_RECOMMENDATION_REJECTED]);
-        $request->status = self::STATUS_RECOMMENDATION_REJECTED;
-        \mod_recommend\event\request_rejected::create_from_request($this->cm, $request)->trigger();
-        return true;
+        return mod_recommend_recommendation::reject_request($this->cm,
+                $this->object, $requestid);
     }
 
     public function can_view_requests() {
@@ -280,4 +267,23 @@ class mod_recommend_request_manager {
 
         return $table;
     }
+
+    /*
+    public static function update_completion() {
+        // Update completion state
+        $completion = new completion_info($this->cm->get_course());
+        if ($completion->is_enabled($this->cm) == COMPLETION_TRACKING_AUTOMATIC) {
+            $requests = $this->get_requests();
+            $count = 0;
+            foreach ($requests as $request) {
+                if ($request->status == self::STATUS_RECOMMENDATION_ACCEPTED) {
+                    $count++;
+                }
+            }
+            $completion->update_state($this->cm,
+                    ($count >= $this->object->requiredrecommend) ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE,
+                    $this->get_userid());
+        }
+    }
+     */
 }

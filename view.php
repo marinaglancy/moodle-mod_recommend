@@ -29,6 +29,7 @@
 
 require_once(__DIR__.'/../../config.php');
 require_once(__DIR__.'/lib.php');
+require_once($CFG->libdir . '/completionlib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
 $r  = optional_param('r', 0, PARAM_INT);  // Recommend instance ID.
@@ -51,6 +52,8 @@ $viewurl = new moodle_url('/mod/recommend/view.php', ['id' => $cm->id]);
 
 if ($action === null) {
     \mod_recommend\event\course_module_viewed::create_from_cm($cm, $course, $recommend)->trigger();
+    $completion = new completion_info($course);
+    $completion->set_module_viewed($cm);
 } else if ($action === 'addrequest' && $manager->can_add_request()) {
     $form = new mod_recommend_add_request_form(null, ['manager' => $manager]);
     if ($form->is_cancelled()) {

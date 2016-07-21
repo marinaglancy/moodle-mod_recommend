@@ -57,8 +57,8 @@ function recommend_supports($feature) {
         //    return true;
         case FEATURE_BACKUP_MOODLE2:
             return true;
-        //case FEATURE_COMPLETION_HAS_RULES:
-        //    return true;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return true;
         //case FEATURE_COMPLETION_TRACKS_VIEWS:
         //    return true;
         default:
@@ -533,3 +533,40 @@ EOD;
         return $ret;
 
 }*/
+
+/**
+ * Obtains the automatic completion state for this choice based on any conditions
+ * in forum settings.
+ *
+ * @global moodle_database $DB
+ * @param stdClass $course Course
+ * @param stdClass $cm Course-module
+ * @param int $userid User ID
+ * @param bool $type Type of comparison (or/and; can be used as return value if no conditions)
+ * @return bool True if completed, false if not, $type if conditions not set.
+ */
+function recommend_get_completion_state($course, $cm, $userid, $type) {
+    global $DB;
+
+    // Get recommend details
+    $recommend = $DB->get_record('recommend', array('id' => $cm->instance), '*', MUST_EXIST);
+
+    // If completion option is enabled, evaluate it and return true/false
+    if ($recommend->requiredrecommend > 0) {
+        $statuses = [mod_recommend_request_manager::STATUS_RECOMMENDATION_ACCEPTED];
+        if (empty($recommend->completiononlyaccepted)) {
+            $statuses[] = mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED;
+        }
+        list($statussql, $params) = $DB->get_in_or_equal($statuses, SQL_PARAMS_NAMED);
+        $params['recommendid'] = $recommend->id;
+        $params['userid'] = $userid;
+        $count = $DB->get_field_sql('SELECT COUNT(id) FROM {recommend_request} '
+                . 'WHERE recommendid = :recommendid AND userid = :userid '
+                . 'AND status ' . $statussql,
+                $params);
+        return $count >= $recommend->requiredrecommend;
+    } else {
+        // Completion option is not enabled so just return $type
+        return $type;
+    }
+}
