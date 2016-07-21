@@ -64,13 +64,27 @@ if ($action === null) {
     if ($manager->can_delete_request($requestid)) {
         require_sesskey();
         $manager->delete_request($requestid);
-        \core\notification::add('Request was deleted',
+        \core\notification::add('Request was deleted', // TODO
                 \core\output\notification::NOTIFY_SUCCESS);
     } else {
-        \core\notification::add('Sorry, this request can not be deleted',
+        \core\notification::add('Sorry, this request can not be deleted', // TODO
                 \core\output\notification::NOTIFY_ERROR);
     }
     redirect($viewurl);
+} else if ($action === 'approverequest' && $requestid &&
+        $manager->can_approve_requests() && confirm_sesskey()) {
+    if ($manager->accept_request($requestid)) {
+        \core\notification::add('Recommendation accepted', // TODO
+                \core\output\notification::NOTIFY_SUCCESS);
+    }
+    redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']));
+} else if ($action === 'rejectrequest' && $requestid &&
+        $manager->can_approve_requests() && confirm_sesskey()) {
+    if ($manager->reject_request($requestid)) {
+        \core\notification::add('Recommendation rejected', // TODO
+                \core\output\notification::NOTIFY_SUCCESS);
+    }
+    redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']));
 }
 
 // Print the page header.

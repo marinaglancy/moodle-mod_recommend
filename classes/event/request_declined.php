@@ -15,32 +15,43 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file keeps track of upgrades to the recommend module
- *
- * Sometimes, changes between versions involve alterations to database
- * structures and other major things that may break installations. The upgrade
- * function in this file will attempt to perform all the necessary actions to
- * upgrade your older installation to the current version. If there's something
- * it cannot do itself, it will tell you what you need to do.  The commands in
- * here will all be database-neutral, using the functions defined in DLL libraries.
+ * Contains class mod_recommend\event\request_declined
  *
  * @package    mod_recommend
  * @copyright  2016 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_recommend\event;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Execute recommend upgrade from the given old version
+ * Class mod_recommend\event\request_declined
  *
- * @param int $oldversion
- * @return bool
+ * @package    mod_recommend
+ * @copyright  2016 Marina Glancy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function xmldb_recommend_upgrade($oldversion) {
-    global $DB;
+class request_declined extends request_updated {
 
-    $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
+    public function get_description() {
+        return "Recommendation declined for the user with id '$this->relateduserid' " .
+            "following request '{$this->objectid}' in the activity with " .
+            "course module id '$this->contextinstanceid'.";
+    }
 
-    return true;
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
+    public static function get_name() {
+        return get_string('eventrequestdeclined', 'recommend');
+    }
 }

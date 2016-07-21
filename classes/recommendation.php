@@ -123,11 +123,13 @@ class mod_recommend_recommendation {
         $DB->insert_records('recommend_reply', $answers);
         $DB->update_record('recommend_request', ['id' => $this->request->id,
             'status' => mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED]);
+        \mod_recommend\event\request_completed::create_from_request($this->cm, $this->request)->trigger();
         // TODO send email(s).
     }
 
     public function show_request() {
-        global $DB, $OUTPUT;
+        global $DB, $OUTPUT, $CFG;
+        require_once($CFG->dirroot.'/comment/lib.php');
         // TODO renderer/template.
         echo $OUTPUT->user_picture($this->user);
         echo fullname($this->user).'<br>';
@@ -154,6 +156,28 @@ class mod_recommend_recommendation {
             $form = new mod_recommend_recommend_form(null,
                 ['recommendation' => $this, 'freeze' => true, 'data' => $data]);
             $form->display();
+
+            if ($this->request->status == mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED &&
+                    has_capability('mod/recommend:approve', $this->cm->context)) {
+                echo '<hr>';
+                $urlapprove = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
+                    'action' => 'approverequest', 'requestid' => $this->request->id, 'sesskey' => sesskey()]);
+                $urlreject = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
+                    'action' => 'rejectrequest', 'requestid' => $this->request->id, 'sesskey' => sesskey()]);
+                echo '<p>'.html_writer::link($urlapprove, 'Approve').'<br>'; // TODO string
+                echo html_writer::link($urlreject, 'Reject').'</p>'; // TODO string
+            }
         }
+
+        echo '<hr>';
+        $commentoptions = new stdClass();
+        $commentoptions->area    = 'recommend_request';
+        $commentoptions->context = $this->cm->context;
+        $commentoptions->itemid  = $this->request->id;
+        $commentoptions->component = 'mod_recommend';
+        $commentoptions->showcount = true;
+        $comment = new comment($commentoptions);
+        $comment->init();
+        echo $comment->output();
     }
 }

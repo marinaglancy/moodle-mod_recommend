@@ -121,6 +121,7 @@ class mod_recommend_request_manager {
         );
         $record->id = $DB->insert_record('recommend_request', $record);
         $this->requests[$record->id] = $record;
+        \mod_recommend\event\request_created::create_from_request($this->cm, $record)->trigger();
         return $record;
     }
 
@@ -163,15 +164,60 @@ class mod_recommend_request_manager {
         return $requests[$requestid]->status == self::STATUS_PENDING;
     }
 
+    protected function get_request_by_id($requestid) {
+        global $DB;
+        if (isset($this->requests[$requestid])) {
+            return $this->requests[$requestid];
+        } else {
+            return $DB->get_record('recommend_request', ['id' => $requestid]);
+        }
+    }
+
     public function delete_request($requestid) {
         global $DB;
+        if (!$request = $this->get_request_by_id($requestid)) {
+            return false;
+        }
         $DB->delete_records('recommend_reply', ['requestid' => $requestid]);
         $DB->delete_records('recommend_request', ['id' => $requestid]);
+        \mod_recommend\event\request_deleted::create_from_request($this->cm, $request)->trigger();
         unset($this->requests[$requestid]);
+        return true;
+    }
+
+    public function accept_request($requestid) {
+        global $DB;
+        if (!($request = $this->get_request_by_id($requestid)) ||
+                        $request->status != self::STATUS_RECOMMENDATION_COMPLETED) {
+            return false;
+        }
+        $DB->update_record('recommend_request', ['id' => $requestid,
+            'status' => self::STATUS_RECOMMENDATION_ACCEPTED]);
+        $request->status = self::STATUS_RECOMMENDATION_ACCEPTED;
+        \mod_recommend\event\request_accepted::create_from_request($this->cm, $request)->trigger();
+        return true;
+    }
+
+    public function reject_request($requestid) {
+        global $DB;
+        if (!($request = $this->get_request_by_id($requestid)) ||
+                        $request->status != self::STATUS_RECOMMENDATION_COMPLETED) {
+            return false;
+        }
+        $DB->update_record('recommend_request', ['id' => $requestid,
+            'status' => self::STATUS_RECOMMENDATION_REJECTED]);
+        $request->status = self::STATUS_RECOMMENDATION_REJECTED;
+        \mod_recommend\event\request_rejected::create_from_request($this->cm, $request)->trigger();
+        return true;
     }
 
     public function can_view_requests() {
-        return has_capability('mod/recommend:viewdetails', $this->cm->context);
+        $caps = ['mod/recommend:viewdetails', 'mod/recommend:approve'];
+        return has_any_capability($caps, $this->cm->context);
+    }
+
+    public function can_approve_requests() {
+        return has_capability('mod/recommend:approve', $this->cm->context);
     }
 
     /**
@@ -204,8 +250,8 @@ class mod_recommend_request_manager {
             $maxrequests = max($maxrequests, count($data[$record->userid]['requests']));
         }
 
-        $otherusers = get_enrolled_users($this->cm->context, 'mod/recommend:request');
-        foreach ($otherusers as $user) {
+        $enrolledusers = get_enrolled_users($this->cm->context, 'mod/recommend:request');
+        foreach ($enrolledusers as $user) {
             if (!isset($data[$user->id])) {
                 $data[$user->id] = ['user' => $user,
                     'fullname' => fullname($user), 'requests' => []];

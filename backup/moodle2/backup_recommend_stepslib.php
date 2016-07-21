@@ -47,7 +47,8 @@ class backup_recommend_activity_structure_step extends backup_activity_structure
 
         // Define the root element describing the recommend instance.
         $recommend = new backup_nested_element('recommend', array('id'), array(
-            'name', 'intro', 'introformat', 'grade', 'maxrequests', 'requiredrecommend'));
+            'name', 'intro', 'introformat', 'timecreated', 'timemodified',
+            'grade', 'maxrequests', 'requiredrecommend'));
 
         // If we had more elements, we would build the tree here.
 

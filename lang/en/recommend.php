@@ -29,8 +29,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addrequest'] = 'Request recommendation';
+$string['eventrequestaccepted'] = 'Recommendation accepted';
+$string['eventrequestcreated'] = 'Recommendation request created';
+$string['eventrequestcompleted'] = 'Recommendation completed';
+$string['eventrequestdeclined'] = 'Recommendation request declined';
+$string['eventrequestdeleted'] = 'Recommendation request deleted';
+$string['eventrequestrejected'] = 'Recommendation rejected';
 $string['maxrequests'] = 'Maximum requests allowed';
-$string['maxrequests_help'] = 'Maximum number of requests the student is allowed to send. '
+$string['maxrequests_help'] = 'Maximum number of requests a student is allowed to send. '
         . 'It is reasonable to set this value low to encourage student to pre-confirm with '
         . 'the recommending person and prevent them from bulk sending large number of requests. '
         . 'However different circumstances may prevent recommending person from filling out'
@@ -52,8 +58,8 @@ $string['recommend'] = 'recommend';
 $string['requestinstructions'] = 'Please use this form to send requests to up to {$a} people you would like to recommend you. They will be able to fill the recommendation form online.';
 $string['status'] = 'Status';
 $string['status0'] = 'Scheduled';
-$string['status1'] = 'Request sent';
-$string['status2'] = 'Request rejected';
+$string['status1'] = 'Recommendation request sent';
+$string['status2'] = 'Recommendation request declined';
 $string['status3'] = 'Recommendation completed';
 $string['status4'] = 'Recommendation rejected';
 $string['status5'] = 'Recommendation accepted';

@@ -454,3 +454,82 @@ function recommend_extend_navigation(navigation_node $navref, stdClass $course, 
 function recommend_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $recommendnode=null) {
     // TODO Delete this function and its docblock, or implement it.
 }
+
+/**
+ * Validate comment parameter before perform other comments actions
+ *
+ * @param stdClass $commentparam {
+ *              context  => context the context object
+ *              courseid => int course id
+ *              cm       => stdClass course module object
+ *              commentarea => string comment area
+ *              itemid      => int itemid
+ * }
+ * @return boolean
+ */
+function recommend_comment_validate($commentparam) {
+    if ($commentparam->commentarea != 'recommend_request') {
+        throw new comment_exception('invalidcommentarea');
+    }
+    //if ($commentparam->itemid != 0) {
+    //    throw new comment_exception('invalidcommentitemid');
+    //}
+    return true;
+
+}
+
+/**
+ * Running addtional permission check on plugins
+ *
+ * @param stdClass $params parameters, have attributes commentarea and itemid
+ * @return array
+ */
+function recommend_comment_permissions($params) {
+    global $DB;
+    $canpost = false;
+    $canview = false;
+    if ($params->commentarea === 'recommend_request') {
+        $request = $DB->get_record('recommend_request', ['id' => $params->itemid]);
+        if ($request) {
+            list($course, $cm) = get_course_and_cm_from_instance($request->recommendid, 'recommend');
+            $caps = ['mod/recommend:viewdetails', 'mod/recommend:approve'];
+            if (has_any_capability($caps, $cm->context) && can_access_course($course) && $cm->uservisible) {
+                $canview = $canpost = true;
+            }
+        }
+    }
+    return array('post' => $canpost, 'view' => $canview);
+}
+
+//function recommend_comment_add(stdClass $comment, stdClass $param) {
+//
+//}
+
+/**
+ * Validate comment data before displaying comments
+ *
+ * @param stdClass $comment
+ * @param stdClass $args
+ * @return boolean
+ */
+function recommend_comment_display($comment, $args) {
+    if ($args->commentarea != 'recommend_request') {
+        throw new comment_exception('invalidcommentarea');
+    }
+    //if ($args->itemid != 0) {
+    //    throw new comment_exception('invalidcommentitemid');
+    //}
+    return $comment;
+}
+
+/*function recommend_comment_template($options) {
+        $ret = <<<EOD
+<div class="comment-userpicture">___picture___</div>
+<div class="comment-content">
+    ___name___ - <span>___time___</span>
+    <div>___content___</div>
+</div>
+EOD;
+        return $ret;
+
+}*/
