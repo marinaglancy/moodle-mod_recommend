@@ -70,7 +70,7 @@ class behat_mod_recommend extends behat_base {
         $record = $DB->get_record_sql('SELECT * '
                 . 'FROM {recommend_request} '
                 . 'WHERE name = ? OR email = ?', [$name, $name], 'secret', MUST_EXIST);
-        $this->getSession()->visit($this->locate_path('/mod/recommend/recommend.php?secret='.$record->secret));
+        $this->getSession()->visit($this->locate_path('/mod/recommend/recommend.php?s='.$record->secret));
     }
 
 }

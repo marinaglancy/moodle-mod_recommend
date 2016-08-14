@@ -42,5 +42,38 @@ function xmldb_recommend_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
+    if ($oldversion < 2016081400) {
+
+        // Define field requesttemplatesubject to be added to recommend.
+        $table = new xmldb_table('recommend');
+        $field = new xmldb_field('requesttemplatesubject', XMLDB_TYPE_CHAR, '1333', null, null, null, null, 'completiononlyaccepted');
+
+        // Conditionally launch add field requesttemplatesubject.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field requesttemplatebody to be added to recommend.
+        $table = new xmldb_table('recommend');
+        $field = new xmldb_field('requesttemplatebody', XMLDB_TYPE_TEXT, null, null, null, null, null, 'requesttemplatesubject');
+
+        // Conditionally launch add field requesttemplatebody.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field requesttemplatebodyformat to be added to recommend.
+        $table = new xmldb_table('recommend');
+        $field = new xmldb_field('requesttemplatebodyformat', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'requesttemplatebody');
+
+        // Conditionally launch add field requesttemplatebodyformat.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Recommend savepoint reached.
+        upgrade_mod_savepoint(true, 2016081400, 'recommend');
+    }
+
     return true;
 }

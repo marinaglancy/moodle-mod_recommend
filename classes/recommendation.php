@@ -71,7 +71,7 @@ class mod_recommend_recommendation {
     }
 
     public function is_submitted() {
-        return $this->request->status >= mod_recommend_request_manager::STATUS_REQUEST_SENT;
+        return $this->request->status > mod_recommend_request_manager::STATUS_REQUEST_SENT;
     }
 
     public function get_secret() {

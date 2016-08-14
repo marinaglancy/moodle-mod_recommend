@@ -69,8 +69,9 @@ class mod_recommend_mod_form extends moodleform_mod {
 
         // Adding the rest of recommend settings, spreading all them into the fieldset.
 
-        $mform->addElement('header', 'recommendfieldset',
-                get_string('recommendfieldset', 'recommend'));
+        $mform->addElement('header', 'requestssettings',
+                get_string('requestssettings', 'recommend'));
+        $mform->setExpanded('requestssettings', true);
 
         $mform->addElement('text', 'maxrequests',
                 get_string('maxrequests', 'recommend'), array('size' => '5'));
@@ -78,6 +79,20 @@ class mod_recommend_mod_form extends moodleform_mod {
         $mform->setType('maxrequests', PARAM_INT);
         $mform->addRule('maxrequests', null, 'numeric', null, 'client');
         $mform->setDefault('maxrequests', 5);
+
+        // TODO strings.
+        $mform->addElement('text', 'requesttemplatesubject',
+                'Request e-mail subject', array('size' => '64'));
+        $mform->setDefault('requesttemplatesubject',
+                get_string('requesttemplatesubject', 'recommend'));
+        $mform->setType('requesttemplatesubject', PARAM_NOTAGS);
+
+        $mform->addElement('editor', 'requesttemplatebodyeditor',
+                'Request e-mail template', [],
+                ['enable_filemanagement' => false, 'maxfiles' => 0]);
+        $mform->setDefault('requesttemplatebodyeditor',
+                ['text' => text_to_html(get_string('requesttemplatebody', 'recommend')),
+                    'format' => FORMAT_HTML]);
 
         // Add standard grading elements.
         $this->standard_grading_coursemodule_elements();

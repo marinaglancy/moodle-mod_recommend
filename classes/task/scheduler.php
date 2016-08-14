@@ -15,22 +15,41 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version and other meta-info about the plugin
- *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
+ * Scheduled task for sending recommendation requests.
  *
  * @package    mod_recommend
- * @copyright  2016 Marina Glancy <your@email.address>
+ * @copyright  2016 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_recommend\task;
 
-defined('MOODLE_INTERNAL') || die();
+use core\task\scheduled_task;
 
-$plugin->component = 'mod_recommend';
-$plugin->version = 2016081401;
-$plugin->release = 'v1.0';
-$plugin->requires = 2014051200;
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->cron = 0;
-$plugin->dependencies = array();
+/**
+ * Scheduled task for sending recommendation requests.
+ *
+ * @package    mod_recommend
+ * @copyright  2016 Marina Glancy
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class scheduler extends scheduled_task {
+
+    /**
+     * Get name.
+     * @return string
+     */
+    public function get_name() {
+        // Shown in admin screens.
+        return get_string('taskname', 'mod_recommend');
+    }
+
+    /**
+     * Execute.
+     */
+    public function execute() {
+        $cnt = \mod_recommend_request_manager::email_scheduled();
+        if ($cnt) {
+            mtrace($cnt . ' recommendation requests sent');
+        }
+    }
+}

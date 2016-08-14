@@ -53,8 +53,8 @@ class mod_recommend_recommend_form extends moodleform {
         $data = isset($this->_customdata['data']) ? $this->_customdata['data'] : [];
 
         if (!$freeze) {
-            $mform->addElement('hidden', 'secret', $recommendation->get_secret());
-            $mform->setType('secret', PARAM_RAW);
+            $mform->addElement('hidden', 's', $recommendation->get_secret());
+            $mform->setType('s', PARAM_RAW);
         }
 
         $questions = $recommendation->get_questions();

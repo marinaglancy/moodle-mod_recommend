@@ -29,6 +29,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addrequest'] = 'Request recommendation';
+$string['email_request_subject'] = '';
 $string['completiononlyaccepted'] = 'Count only accepted recommendations';
 $string['completionrequired'] = 'Minimum number of completed recommendations: ';
 $string['eventrequestaccepted'] = 'Recommendation accepted';
@@ -38,11 +39,11 @@ $string['eventrequestdeclined'] = 'Recommendation request declined';
 $string['eventrequestdeleted'] = 'Recommendation request deleted';
 $string['eventrequestrejected'] = 'Recommendation rejected';
 $string['maxrequests'] = 'Maximum requests allowed';
-$string['maxrequests_help'] = 'Maximum number of requests a student is allowed to send. '
-        . 'It is reasonable to set this value low to encourage student to pre-confirm with '
+$string['maxrequests_help'] = 'Maximum number of requests a participant is allowed to send. '
+        . 'It is reasonable to set this value low to encourage participants to pre-confirm with '
         . 'the recommending person and prevent them from bulk sending large number of requests. '
-        . 'However different circumstances may prevent recommending person from filling out'
-        . 'the form and student should be allowed to send more requests than the required'
+        . 'However different circumstances may prevent recommending person from filling out '
+        . 'the form and participant should be allowed to send more requests than the required '
         . 'number of recommendations';
 $string['modulename'] = 'Recommendation request';
 $string['modulenameplural'] = 'Recommendation requests';
@@ -51,11 +52,21 @@ $string['recommend:addinstance'] = 'Add a new Recommendation request activity';
 $string['recommend:request'] = 'Request new recommendation';
 $string['recommend:viewdetails'] = 'View the recommendation details (requested and completed)';
 $string['recommendatorname'] = 'Name of the recommending person';
-$string['recommendfieldset'] = 'Requests options';
 $string['recommendname'] = 'Name';
 $string['recommendname_help'] = 'Name of the activity as displayed on the course page. Not shown to the recommending person.';
 $string['recommend'] = 'recommend';
 $string['requestinstructions'] = 'Please use this form to send requests to up to {$a} people you would like to recommend you. They will be able to fill the recommendation form online.';
+$string['requestssettings'] = 'Requests settings';
+$string['requesttemplatebody'] = 'Dear {NAME}
+
+{PARTICIPANT} has asked you for a recommendation on {SITE}.
+To fill the recommendation form online please follow the link:
+{LINK}
+
+If you need help, please contact the site administrator,
+{ADMIN}
+';
+$string['requesttemplatesubject'] = 'Recommendation request from {SITE}';
 $string['status'] = 'Status';
 $string['status0'] = 'Scheduled';
 $string['status1'] = 'Recommendation request sent';
@@ -63,6 +74,7 @@ $string['status2'] = 'Recommendation request declined';
 $string['status3'] = 'Recommendation completed';
 $string['status4'] = 'Recommendation rejected';
 $string['status5'] = 'Recommendation accepted';
+$string['taskname'] = 'Send scheduled recommendation requests';
 $string['timerequested'] = 'Requested';
 $string['timecompleted'] = 'Completed';
 $string['pluginadministration'] = 'Recommendation request administration';

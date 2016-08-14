@@ -27,9 +27,9 @@
 require_once(__DIR__.'/../../config.php');
 require_once(__DIR__.'/locallib.php');
 
-$secret = required_param('secret', PARAM_RAW);
+$secret = required_param('s', PARAM_RAW);
 $recommendation = new mod_recommend_recommendation($secret);
-$baseurl = new moodle_url('/mod/recommend/recommend.php', ['secret' => $secret]);
+$baseurl = new moodle_url('/mod/recommend/recommend.php', ['s' => $secret]);
 
 // Print the page header.
 $PAGE->set_context(context_system::instance());

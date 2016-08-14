@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/recommend/db" VERSION="20160721" COMMENT="XMLDB file for Moodle mod/recommend"
+<XMLDB PATH="mod/recommend/db" VERSION="20160814" COMMENT="XMLDB file for Moodle mod/recommend"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -17,6 +17,9 @@
         <FIELD NAME="maxrequests" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="5" SEQUENCE="false"/>
         <FIELD NAME="requiredrecommend" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="completiononlyaccepted" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="requesttemplatesubject" TYPE="char" LENGTH="1333" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="requesttemplatebody" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="requesttemplatebodyformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

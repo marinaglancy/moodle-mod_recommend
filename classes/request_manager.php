@@ -287,4 +287,73 @@ class mod_recommend_request_manager {
         }
     }
      */
+
+    public static function email_scheduled() {
+        global $DB;
+        $cooldowntimeout = 15 * MINSECS; // TODO setting
+
+        $module = $DB->get_record('modules', ['name' => 'recommend', 'visible' => 1]);
+        if (!$module) {
+            return;
+        }
+
+        $userfields = user_picture::fields('u', null, 'userid');
+        $contextfields = context_helper::get_preload_record_columns_sql('ctx');
+        $records = $DB->get_records_sql("
+                SELECT r.id, r.name, r.email, r.secret,
+                    m.requesttemplatesubject AS subject,
+                    m.requesttemplatebody AS body,
+                    m.requesttemplatebodyformat AS bodyformat,
+                    cm.id AS cmid,
+                    $userfields, $contextfields
+                FROM {recommend_request} r
+                JOIN {user} u ON u.id = r.userid AND u.deleted = 0 AND u.suspended = 0
+                JOIN {recommend} m ON m.id = r.recommendid
+                JOIN {course_modules} cm ON cm.instance = m.id AND cm.module = ?
+                JOIN {context} ctx ON ctx.contextlevel = ? AND ctx.instanceid = cm.id
+                WHERE r.status = ? AND r.timerequested < ?",
+                [$module->id, CONTEXT_MODULE,
+                    self::STATUS_PENDING, time() - $cooldowntimeout]);
+        if (!$records) {
+            return;
+        }
+
+        $site = get_site();
+        $siteadmin = generate_email_signoff();
+        $tempuser = fullclone(\core_user::get_support_user());
+        $tempuser->lastname = '';
+        $tempuser->mailformat = 1;
+
+        foreach ($records as $record) {
+            context_helper::preload_from_record($record);
+            $context = context_module::instance($record->cmid);
+            $user = user_picture::unalias($record, null, 'userid');
+            $link = new moodle_url('/mod/recommend/recommend.php', ['s' => $record->secret]);
+            // TODO lang?
+            $options = ['context' => $context];
+            $replacements = [
+                '{PARTICIPANT}' => fullname($user, true),
+                '{NAME}' => $record->name,
+                '{LINK}' => $link->out(),
+                '{SITE}' => format_string($site->fullname, true, $options),
+                '{ADMIN}' => $siteadmin,
+            ];
+            $subject = str_replace(array_keys($replacements), array_values($replacements),
+                    format_string($record->subject, true, $options));
+            $body = str_replace(array_keys($replacements), array_values($replacements),
+                    format_text($record->body, $record->bodyformat, $options));
+
+            $tempuser->id = $user->id;
+            $tempuser->email = $record->email;
+            $tempuser->firstname = $record->name;
+            email_to_user($tempuser, \core_user::get_support_user(), $subject,
+                html_to_text($body), $body);
+
+            // TODO analyse if email failed.
+            $DB->update_record('recommend_request',
+                ['id' => $record->id, 'status' => self::STATUS_REQUEST_SENT]);
+        }
+
+        return count($records);
+    }
 }

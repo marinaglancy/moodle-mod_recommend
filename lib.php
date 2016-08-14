@@ -17,26 +17,12 @@
 /**
  * Library of interface functions and constants for module recommend
  *
- * All the core Moodle functions, neeeded to allow the module to work
- * integrated in Moodle should be placed here.
- *
- * All the recommend specific functions, needed to implement all the module
- * logic, should go to locallib.php. This will help to save some memory when
- * Moodle is performing actions across all modules.
- *
  * @package    mod_recommend
  * @copyright  2016 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
-
-/**
- * Example constant, you probably want to remove this :-)
- */
-//define('RECOMMEND_ULTIMATE_ANSWER', 42);
-
-/* Moodle core API */
 
 /**
  * Returns the information on whether the module supports a feature
@@ -84,7 +70,11 @@ function recommend_add_instance(stdClass $recommend, mod_recommend_mod_form $mfo
     $recommend->timecreated = time();
     $recommend->timemodified = time();
 
-    // You may have to add extra stuff in here.
+    if (isset($recommend->requesttemplatebodyeditor)) {
+        $recommend->requesttemplatebody = $recommend->requesttemplatebodyeditor['text'];
+        $recommend->requesttemplatebodyformat = $recommend->requesttemplatebodyeditor['format'];
+        unset($recommend->requesttemplatebodyeditor);
+    }
 
     $recommend->id = $DB->insert_record('recommend', $recommend);
 
@@ -110,7 +100,11 @@ function recommend_update_instance(stdClass $recommend, mod_recommend_mod_form $
     $recommend->timemodified = time();
     $recommend->id = $recommend->instance;
 
-    // You may have to add extra stuff in here.
+    if (isset($recommend->requesttemplatebodyeditor)) {
+        $recommend->requesttemplatebody = $recommend->requesttemplatebodyeditor['text'];
+        $recommend->requesttemplatebodyformat = $recommend->requesttemplatebodyeditor['format'];
+        unset($recommend->requesttemplatebodyeditor);
+    }
 
     $result = $DB->update_record('recommend', $recommend);
 
@@ -226,20 +220,6 @@ function recommend_get_recent_mod_activity(&$activities, &$index, $timestart, $c
  * @param bool $viewfullnames display users' full names
  */
 function recommend_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
-}
-
-/**
- * Function to be run periodically according to the moodle cron
- *
- * This function searches for things that need to be done, such
- * as sending out mail, toggling flags etc ...
- *
- * Note that this has been deprecated in favour of scheduled task API.
- *
- * @return boolean
- */
-function recommend_cron () {
-    return true;
 }
 
 /**
@@ -438,9 +418,9 @@ function recommend_pluginfile($course, $cm, $context, $filearea, array $args, $f
  * @param stdClass $module current recommend instance record
  * @param cm_info $cm course module information
  */
-function recommend_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
+//function recommend_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
     // TODO Delete this function and its docblock, or implement it.
-}
+//}
 
 /**
  * Extends the settings navigation with the recommend settings
@@ -451,9 +431,9 @@ function recommend_extend_navigation(navigation_node $navref, stdClass $course, 
  * @param settings_navigation $settingsnav complete settings navigation tree
  * @param navigation_node $recommendnode recommend administration node
  */
-function recommend_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $recommendnode=null) {
+//function recommend_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $recommendnode=null) {
     // TODO Delete this function and its docblock, or implement it.
-}
+//}
 
 /**
  * Validate comment parameter before perform other comments actions
