@@ -35,13 +35,22 @@ require_once($CFG->libdir.'/formslib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_recommend_recommend_form extends moodleform {
+
+    function __construct($action=null, $customdata=null, $method='post', $target='', $attributes=null, $editable=true) {
+        if ($attributes === null) {
+            $attributes = ['class' => 'mod-recommend-recommendation'];
+        }
+        parent::__construct($action, $customdata, $method, $target, $attributes, $editable);
+    }
+
     public function definition() {
-        /** @var mod_recommend_recommendation */
-        $recommendation = $this->_customdata['recommendation'];
-        $freeze = !empty($this->_customdata['freeze']);
-        $data = isset($this->_customdata['data']) ? $this->_customdata['data'] : [];
 
         $mform = $this->_form;
+
+        /** @var mod_recommend_recommendation */
+        $recommendation = $this->_customdata['recommendation'];
+        $freeze = $mform->_freezeAll;
+        $data = isset($this->_customdata['data']) ? $this->_customdata['data'] : [];
 
         if (!$freeze) {
             $mform->addElement('hidden', 'secret', $recommendation->get_secret());
@@ -91,7 +100,7 @@ class mod_recommend_recommend_form extends moodleform {
                     }
                 }
 
-                $mform->addElement('group', $label, $qtext, $elements, array('&nbsp;'), false);
+                $mform->addElement('group', $label, $qtext, $elements, ['&nbsp;'], false);
             }
         }
 

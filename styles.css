@@ -1,0 +1,7 @@
+.path-mod-recommend form.mod-recommend-recommendation .fitem.femptylabel .felement {
+    margin-left: 0;
+}
+body.path-mod-recommend #region-main form.mform.mod-recommend-recommendation .fitem.femptylabel .fitemtitle {
+    width: 0;
+    margin-right: 0;
+}

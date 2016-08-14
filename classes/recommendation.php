@@ -162,7 +162,7 @@ class mod_recommend_recommendation {
                 $data['question'.$reply->questionid] = $reply->reply;
             }
             $form = new mod_recommend_recommend_form(null,
-                ['recommendation' => $this, 'freeze' => true, 'data' => $data]);
+                ['recommendation' => $this, 'data' => $data], 'post', '', null, false);
             $form->display();
 
             if ($this->request->status == mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED &&
