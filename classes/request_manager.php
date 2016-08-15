@@ -126,7 +126,7 @@ class mod_recommend_request_manager {
             'userid' => $this->get_userid(),
             'email' => $email,
             'name' => $name,
-            'status' => 0, // TODO constant
+            'status' => self::STATUS_PENDING,
             'timerequested' => time(),
             'timecompleted' => null,
             'secret' => $this->generate_secret($email, $name)

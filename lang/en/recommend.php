@@ -28,10 +28,19 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['acceptrecommendation'] = 'Accept';
 $string['addrequest'] = 'Request recommendation';
+$string['allrequests'] = 'All requests';
 $string['completiononlyaccepted'] = 'Count only accepted recommendations';
 $string['completionrequired'] = 'Minimum number of completed recommendations: ';
 $string['email_request_subject'] = '';
+$string['error_cannotdeleterequest'] = 'Sorry, this request can not be deleted';
+$string['error_emailduplicated'] = 'Duplicate e-mail address';
+$string['error_emailmissing'] = 'E-mail for this recommendation is not specified';
+$string['error_emailnotvalid'] = 'E-mail address is not valid';
+$string['error_emailused'] = 'Request to this e-mail has already been sent';
+$string['error_recommendationsubmitted'] = 'This recommendation is already submitted';
+$string['error_requestnotfound'] = 'Sorry we could not find this recommendation requst';
 $string['eventrequestaccepted'] = 'Recommendation accepted';
 $string['eventrequestcompleted'] = 'Recommendation completed';
 $string['eventrequestcreated'] = 'Recommendation request created';
@@ -54,9 +63,17 @@ $string['recommend'] = 'recommend';
 $string['recommend:addinstance'] = 'Add a new Recommendation request activity';
 $string['recommend:request'] = 'Request new recommendation';
 $string['recommend:viewdetails'] = 'View the recommendation details (requested and completed)';
+$string['recommendationaccepted'] = 'Recommendation accepted';
+$string['recommendationfor'] = 'Recommendation for {$a}';
+$string['recommendationrejected'] = 'Recommendation rejected';
+$string['recommendationtitle'] = 'Recommendation {$a}';
 $string['recommendatorname'] = 'Name of the recommending person';
 $string['recommendname'] = 'Name';
 $string['recommendname_help'] = 'Name of the activity as displayed on the course page. Not shown to the recommending person.';
+$string['rejectrecommendation'] = 'Reject';
+$string['requestdeleted'] = 'Request was deleted';
+$string['requestemailsubject'] = 'Request e-mail subject';
+$string['requestemailtemplate'] = 'Request e-mail template';
 $string['requestinstructions'] = 'Please use this form to send requests to up to {$a} people you would like to recommend you. They will be able to fill the recommendation form online.';
 $string['requestssettings'] = 'Requests settings';
 $string['requesttemplatebody'] = 'Dear {NAME}
@@ -79,5 +96,7 @@ $string['status3'] = 'Recommendation completed';
 $string['status4'] = 'Recommendation rejected';
 $string['status5'] = 'Recommendation accepted';
 $string['taskname'] = 'Send scheduled recommendation requests';
+$string['thanksforrecommendation'] = 'Thank you, your recommendation has been processed.';
 $string['timecompleted'] = 'Completed';
 $string['timerequested'] = 'Requested';
+$string['yourrecommendations'] = 'Your recommendations';

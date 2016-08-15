@@ -41,12 +41,12 @@ $form = new mod_recommend_recommend_form(null, ['recommendation' => $recommendat
 if ($data = $form->get_data()) {
     $recommendation->save($data);
     echo $OUTPUT->header();
-    echo "<p>Thank you, your recommendation has been processed.</p>"; // TODO string
+    echo "<p>".get_string('thanksforrecommendation', 'mod_recommend')."</p>";
     echo $OUTPUT->footer();
     exit;
 } else if ($recommendation->is_submitted()) {
     echo $OUTPUT->header();
-    echo '<p>This recommendation is already submitted</p>'; // TODO stirng
+    echo '<p>'.get_string('error_recommendationsubmitted', 'mod_recommend').'</p>';
     echo $OUTPUT->footer();
     exit;
 }

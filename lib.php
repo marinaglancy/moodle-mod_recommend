@@ -409,20 +409,6 @@ function recommend_pluginfile($course, $cm, $context, $filearea, array $args, $f
 /* Navigation API */
 
 /**
- * Extends the global navigation tree by adding recommend nodes if there is a relevant content
- *
- * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
- *
- * @param navigation_node $navref An object representing the navigation tree node of the recommend module instance
- * @param stdClass $course current course record
- * @param stdClass $module current recommend instance record
- * @param cm_info $cm course module information
- */
-//function recommend_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
-    // TODO Delete this function and its docblock, or implement it.
-//}
-
-/**
  * Extends the settings navigation with the recommend settings
  *
  * This function is called when the context for the page is a recommend module. This is not called by AJAX

@@ -51,7 +51,7 @@ class mod_recommend_add_request_form extends moodleform {
                 get_string('requestinstructions', 'recommend', $canadd));
 
         for ($i = 1; $i <= $canadd; $i++) {
-            $mform->addElement('header', 'recommend'.$i, 'Recommendation '.$i); // TODO string
+            $mform->addElement('header', 'recommend'.$i, get_string('recommendationtitle', 'mod_recommend', $i));
             $mform->addElement('text', 'name'.$i, get_string('recommendatorname', 'recommend'));
             $mform->setType('name'.$i, PARAM_TEXT);
             $mform->addElement('text', 'email'.$i, get_string('email'));
@@ -72,18 +72,18 @@ class mod_recommend_add_request_form extends moodleform {
         foreach ($data as $key => $value) {
             if (preg_match('/^email\d+$/', $key) && strlen($value)) {
                 if (clean_param($value, PARAM_EMAIL) !== $value) {
-                    $errors[$key] = 'E-mail address is not valid'; // TODO string
+                    $errors[$key] = get_string('error_emailnotvalid', 'mod_recommend');
                 } else if (in_array(strtolower($value), $emails)) {
-                    $errors[$key] = 'Request to this e-mail has already been sent'; // TODO string
+                    $errors[$key] = get_string('error_emailused', 'mod_recommend');
                 } else if (in_array(strtolower($value), $newemails)) {
-                    $errors[$key] = 'Duplicate e-mail address'; // TODO string
+                    $errors[$key] = get_string('error_emailduplicated', 'mod_recommend');
                 } else {
                     $newemails[] = strtolower($value);
                 }
             }
             if (preg_match('/^name(\d+)$/', $key, $matches) && strlen(trim($value))) {
                 if (empty($data['email'.$matches[1]])) {
-                    $errors[$key] = 'E-mail for this recommendator is not specified'; //TODO string
+                    $errors[$key] = get_string('error_emailmissing', 'mod_recommend');
                 }
             }
         }

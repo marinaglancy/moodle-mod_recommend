@@ -80,15 +80,14 @@ class mod_recommend_mod_form extends moodleform_mod {
         $mform->addRule('maxrequests', null, 'numeric', null, 'client');
         $mform->setDefault('maxrequests', 5);
 
-        // TODO strings.
         $mform->addElement('text', 'requesttemplatesubject',
-                'Request e-mail subject', array('size' => '64'));
+                get_string('requestemailsubject', 'mod_recommend'), array('size' => '64'));
         $mform->setDefault('requesttemplatesubject',
                 get_string('requesttemplatesubject', 'recommend'));
         $mform->setType('requesttemplatesubject', PARAM_NOTAGS);
 
         $mform->addElement('editor', 'requesttemplatebodyeditor',
-                'Request e-mail template', [],
+                get_string('requestemailtemplate', 'mod_recommend'), [],
                 ['enable_filemanagement' => false, 'maxfiles' => 0]);
         $mform->setDefault('requesttemplatebodyeditor',
                 ['text' => text_to_html(get_string('requesttemplatebody', 'recommend')),

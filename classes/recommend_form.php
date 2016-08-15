@@ -121,7 +121,7 @@ class mod_recommend_recommend_form extends moodleform {
             if ($question->type === 'email') {
                 $value = $data['question'.$qid];
                 if (clean_param($value, PARAM_EMAIL) !== $value) {
-                    $errors['question'.$qid] = 'Invalid e-mail'; // TODO string.
+                    $errors['question'.$qid] = get_string('error_emailnotvalid', 'mod_recommend');
                 }
             }
         }

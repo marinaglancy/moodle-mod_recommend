@@ -45,7 +45,7 @@ class mod_recommend_recommendation {
         if ($secret) {
             $request = $DB->get_record('recommend_request', ['secret' => $secret]);
             if (!$request) {
-                throw new moodle_exception('secret not found'); // TODO string, new exception.
+                throw new moodle_exception('error_requestnotfound', 'mod_recommend');
             }
         } else {
             $request = $DB->get_record('recommend_request', ['id' => $id], '*', MUST_EXIST);
@@ -66,8 +66,7 @@ class mod_recommend_recommendation {
     }
 
     public function get_title() {
-        // TODO.
-        return 'Recommendation for '.fullname($this->user);
+        return get_string('recommendationfor', 'mod_recommend', fullname($this->user));
     }
 
     public function is_submitted() {
@@ -172,8 +171,8 @@ class mod_recommend_recommendation {
                     'action' => 'acceptrequest', 'requestid' => $this->request->id, 'sesskey' => sesskey()]);
                 $urlreject = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
                     'action' => 'rejectrequest', 'requestid' => $this->request->id, 'sesskey' => sesskey()]);
-                echo '<p>'.html_writer::link($urlaccept, 'Accept').'<br>'; // TODO string
-                echo html_writer::link($urlreject, 'Reject').'</p>'; // TODO string
+                echo '<p>'.html_writer::link($urlaccept, get_string('acceptrecommendation', 'mod_recommend')).'<br>';
+                echo html_writer::link($urlreject, get_string('rejectrecommendation', 'mod_recommend')).'</p>';
             }
         }
 

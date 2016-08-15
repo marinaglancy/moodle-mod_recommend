@@ -77,9 +77,9 @@ if ($action === null) {
     if ($manager->can_delete_request($requestid)) {
         require_sesskey();
         $manager->delete_request($requestid);
-        $message = 'Request was deleted'; // TODO
+        $message = get_string('requestdeleted', 'mod_recommend');
     } else {
-        $message = 'Sorry, this request can not be deleted'; // TODO
+        $message = get_string('error_cannotdeleterequest', 'mod_recommend');
         $status = $statuserror;
     }
     redirect($viewurl, $message, 3, $status);
@@ -87,7 +87,7 @@ if ($action === null) {
         $manager->can_accept_requests() && confirm_sesskey()) {
     $message = '';
     if ($manager->accept_request($requestid)) {
-        $message = 'Recommendation accepted'; //TODO
+        $message = get_string('recommendationaccepted', 'mod_recommend');
     }
     redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']),
             $message, 3, $statussuccess);
@@ -95,7 +95,7 @@ if ($action === null) {
         $manager->can_accept_requests() && confirm_sesskey()) {
     $message = '';
     if ($manager->reject_request($requestid)) {
-        $message = 'Recommendation rejected'; // TODO
+        $message = get_string('recommendationrejected', 'mod_recommend');
     }
     redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']),
             $message, 3, $statussuccess);
@@ -133,7 +133,7 @@ if ($action === 'addrequest') {
     }
 } else {
     if ($table = $manager->get_requests_table()) {
-        echo $OUTPUT->heading('Your recommendations', 3); // TODO lang string
+        echo $OUTPUT->heading(get_string('yourrecommendations', 'mod_recommend'), 3);
         echo html_writer::table($table);
     }
     if ($manager->can_add_request()) {
@@ -143,7 +143,7 @@ if ($action === 'addrequest') {
     }
     if ($manager->can_view_requests()) {
         $table = $manager->get_all_requests_table();
-        echo $OUTPUT->heading('All requests', 3); // TODO lang string
+        echo $OUTPUT->heading(get_string('allrequests', 'mod_recommend'), 3);
         echo html_writer::table($table);
     }
 }
