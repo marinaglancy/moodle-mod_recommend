@@ -29,12 +29,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addrequest'] = 'Request recommendation';
-$string['email_request_subject'] = '';
 $string['completiononlyaccepted'] = 'Count only accepted recommendations';
 $string['completionrequired'] = 'Minimum number of completed recommendations: ';
+$string['email_request_subject'] = '';
 $string['eventrequestaccepted'] = 'Recommendation accepted';
-$string['eventrequestcreated'] = 'Recommendation request created';
 $string['eventrequestcompleted'] = 'Recommendation completed';
+$string['eventrequestcreated'] = 'Recommendation request created';
 $string['eventrequestdeclined'] = 'Recommendation request declined';
 $string['eventrequestdeleted'] = 'Recommendation request deleted';
 $string['eventrequestrejected'] = 'Recommendation rejected';
@@ -46,15 +46,17 @@ $string['maxrequests_help'] = 'Maximum number of requests a participant is allow
         . 'the form and participant should be allowed to send more requests than the required '
         . 'number of recommendations';
 $string['modulename'] = 'Recommendation request';
-$string['modulenameplural'] = 'Recommendation requests';
 $string['modulename_help'] = 'Use the Recommendation request module to allow users to request recommendations from anybody including people who are not registered in Moodle';
+$string['modulenameplural'] = 'Recommendation requests';
+$string['pluginadministration'] = 'Recommendation request administration';
+$string['pluginname'] = 'Recommendation request';
+$string['recommend'] = 'recommend';
 $string['recommend:addinstance'] = 'Add a new Recommendation request activity';
 $string['recommend:request'] = 'Request new recommendation';
 $string['recommend:viewdetails'] = 'View the recommendation details (requested and completed)';
 $string['recommendatorname'] = 'Name of the recommending person';
 $string['recommendname'] = 'Name';
 $string['recommendname_help'] = 'Name of the activity as displayed on the course page. Not shown to the recommending person.';
-$string['recommend'] = 'recommend';
 $string['requestinstructions'] = 'Please use this form to send requests to up to {$a} people you would like to recommend you. They will be able to fill the recommendation form online.';
 $string['requestssettings'] = 'Requests settings';
 $string['requesttemplatebody'] = 'Dear {NAME}
@@ -67,6 +69,8 @@ If you need help, please contact the site administrator,
 {ADMIN}
 ';
 $string['requesttemplatesubject'] = 'Recommendation request from {SITE}';
+$string['requiredrecommendgroup'] = 'Recommendations received';
+$string['requiredrecommendgroup_help'] = 'If the setting "Count only accepted recommendations" is unchecked, completed recommendations that have not yet been reviewed by the teacher will be counted. However if later the completed recommendation becomes rejected by the teacher the completed activity may become incomplete again.';
 $string['status'] = 'Status';
 $string['status0'] = 'Scheduled';
 $string['status1'] = 'Recommendation request sent';
@@ -75,9 +79,5 @@ $string['status3'] = 'Recommendation completed';
 $string['status4'] = 'Recommendation rejected';
 $string['status5'] = 'Recommendation accepted';
 $string['taskname'] = 'Send scheduled recommendation requests';
-$string['timerequested'] = 'Requested';
 $string['timecompleted'] = 'Completed';
-$string['pluginadministration'] = 'Recommendation request administration';
-$string['pluginname'] = 'Recommendation request';
-$string['requiredrecommendgroup'] = 'Recommendations received';
-$string['requiredrecommendgroup_help'] = 'If the setting "Count only accepted recommendations" is unchecked, completed recommendations that have not yet been reviewed by the teacher will be counted. However if later the completed recommendation becomes rejected by the teacher the completed activity may become incomplete again.';
+$string['timerequested'] = 'Requested';

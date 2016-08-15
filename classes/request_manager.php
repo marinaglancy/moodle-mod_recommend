@@ -322,7 +322,7 @@ class mod_recommend_request_manager {
         $siteadmin = generate_email_signoff();
         $tempuser = fullclone(\core_user::get_support_user());
         $tempuser->lastname = '';
-        $tempuser->mailformat = 1;
+        $tempuser->mailformat = FORMAT_HTML;
 
         foreach ($records as $record) {
             context_helper::preload_from_record($record);
@@ -349,7 +349,7 @@ class mod_recommend_request_manager {
             email_to_user($tempuser, \core_user::get_support_user(), $subject,
                 html_to_text($body), $body);
 
-            // TODO analyse if email failed.
+            // TODO analyse if email failed?
             $DB->update_record('recommend_request',
                 ['id' => $record->id, 'status' => self::STATUS_REQUEST_SENT]);
         }
