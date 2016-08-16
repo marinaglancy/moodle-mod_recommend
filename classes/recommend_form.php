@@ -36,11 +36,12 @@ require_once($CFG->libdir.'/formslib.php');
  */
 class mod_recommend_recommend_form extends moodleform {
 
-    function __construct($action=null, $customdata=null, $method='post', $target='', $attributes=null, $editable=true) {
-        if ($attributes === null) {
-            $attributes = ['class' => 'mod-recommend-recommendation'];
-        }
-        parent::__construct($action, $customdata, $method, $target, $attributes, $editable);
+    var $editable = true;
+
+    function __construct($customdata=null, $editable=true) {
+        $attributes = ['class' => 'mod-recommend-recommendation'];
+        $this->editable = $editable;
+        parent::__construct(null, $customdata, 'post', '', $attributes);
     }
 
     public function definition() {
@@ -49,7 +50,7 @@ class mod_recommend_recommend_form extends moodleform {
 
         /** @var mod_recommend_recommendation */
         $recommendation = $this->_customdata['recommendation'];
-        $freeze = $mform->_freezeAll;
+        $freeze = !$this->editable;
         $data = isset($this->_customdata['data']) ? $this->_customdata['data'] : [];
 
         if (!$freeze) {
@@ -64,7 +65,6 @@ class mod_recommend_recommend_form extends moodleform {
             $elementlabel = 'question'.$question->id;
             $qtext = format_text($question->question, $question->questionformat);
             if ($question->type === 'label') {
-                // TODO make it wide.
                 $mform->addElement('static', $label, '', $qtext);
             } else if ($question->type === 'textarea') {
                 $options = ['enable_filemanagement' => false, 'maxfiles' => 0];

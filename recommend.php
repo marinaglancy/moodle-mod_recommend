@@ -37,7 +37,7 @@ $PAGE->set_url($baseurl);
 $PAGE->set_title($recommendation->get_title());
 $PAGE->set_heading($recommendation->get_title());
 
-$form = new mod_recommend_recommend_form(null, ['recommendation' => $recommendation]);
+$form = new mod_recommend_recommend_form(['recommendation' => $recommendation]);
 if ($data = $form->get_data()) {
     $recommendation->save($data);
     echo $OUTPUT->header();

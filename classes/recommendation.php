@@ -160,8 +160,7 @@ class mod_recommend_recommendation {
             foreach ($replies as $reply) {
                 $data['question'.$reply->questionid] = $reply->reply;
             }
-            $form = new mod_recommend_recommend_form(null,
-                ['recommendation' => $this, 'data' => $data], 'post', '', null, false);
+            $form = new mod_recommend_recommend_form(['recommendation' => $this, 'data' => $data], false);
             $form->display();
 
             if ($this->request->status == mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED &&
