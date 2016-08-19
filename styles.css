@@ -1,7 +1,26 @@
 .path-mod-recommend form.mod-recommend-recommendation .fitem.femptylabel .felement {
     margin-left: 0;
 }
-body.path-mod-recommend #region-main form.mform.mod-recommend-recommendation .fitem.femptylabel .fitemtitle {
+.path-mod-recommend #region-main form.mform.mod-recommend-recommendation .fitem.femptylabel .fitemtitle {
     width: 0;
     margin-right: 0;
+}
+.path-mod-recommend form.mform.mod-recommend-recommendation.editing .fitem {
+    position: relative;
+}
+.path-mod-recommend form.mform.mod-recommend-recommendation.editing .fitem .editcontrols {
+    display: none;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background: #f6f4c2;
+    border: 1px solid #aaa;
+    padding: 5px;
+}
+.path-mod-recommend form.mform.mod-recommend-recommendation.editing .fitem:hover {
+    background: #f5f5f5;
+}
+.path-mod-recommend form.mform.mod-recommend-recommendation.editing .fitem:hover .editcontrols,
+.path-mod-recommend form.mform.mod-recommend-recommendation.editing .fitem.dummyitem .editcontrols {
+    display: block;
 }

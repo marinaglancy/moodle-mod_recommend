@@ -29,10 +29,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['acceptrecommendation'] = 'Accept';
+$string['addquestion'] = 'Add question';
 $string['addrequest'] = 'Request recommendation';
 $string['allrequests'] = 'All requests';
 $string['completiononlyaccepted'] = 'Count only accepted recommendations';
 $string['completionrequired'] = 'Minimum number of completed recommendations: ';
+$string['editquestion'] = 'Edit question';
 $string['email_request_subject'] = '';
 $string['error_cannotdeleterequest'] = 'Sorry, this request can not be deleted';
 $string['error_emailduplicated'] = 'Duplicate e-mail address';
@@ -88,6 +90,7 @@ If you need help, please contact the site administrator,
 $string['requesttemplatesubject'] = 'Recommendation request from {SITE}';
 $string['requiredrecommendgroup'] = 'Recommendations received';
 $string['requiredrecommendgroup_help'] = 'If the setting "Count only accepted recommendations" is unchecked, completed recommendations that have not yet been reviewed by the teacher will be counted. However if later the completed recommendation becomes rejected by the teacher the completed activity may become incomplete again.';
+$string['selectquestiontype'] = 'Select question type';
 $string['status'] = 'Status';
 $string['status0'] = 'Scheduled';
 $string['status1'] = 'Recommendation request sent';
@@ -95,8 +98,14 @@ $string['status2'] = 'Recommendation request declined';
 $string['status3'] = 'Recommendation completed';
 $string['status4'] = 'Recommendation rejected';
 $string['status5'] = 'Recommendation accepted';
+$string['suredeletequestion'] = 'Are you sure you want to delete this question? All replies to this question in the existing recommendations will also be deleted';
 $string['taskname'] = 'Send scheduled recommendation requests';
 $string['thanksforrecommendation'] = 'Thank you, your recommendation has been processed.';
 $string['timecompleted'] = 'Completed';
 $string['timerequested'] = 'Requested';
+//$string['typeemail'] = 'Single line text field pre-filled with e-mail';
+$string['typelabel'] = 'Explanation text without input control';
+$string['typeradio'] = 'Collection of radio buttons';
+$string['typetextarea'] = 'Multiline text with editor';
+$string['typetextfield'] = 'Single line text field';
 $string['yourrecommendations'] = 'Your recommendations';

@@ -108,10 +108,10 @@ class mod_recommend_request_manager {
         }
     }
 
-    protected function generate_secret($email, $name) {
+    public static function generate_secret($userid, $email, $name) {
         global $DB;
         while (true) {
-            $secret = md5('secret/'.rand(1, 10000).'/'.$this->get_userid().'/'.$email.'/'.$name);
+            $secret = md5('secret/'.rand(1, 10000).'/'.$userid.'/'.$email.'/'.$name);
             if (!$DB->record_exists('recommend_request', ['secret' => $secret])) {
                 return $secret;
             }
@@ -129,7 +129,7 @@ class mod_recommend_request_manager {
             'status' => self::STATUS_PENDING,
             'timerequested' => time(),
             'timecompleted' => null,
-            'secret' => $this->generate_secret($email, $name)
+            'secret' => $this->generate_secret($this->get_userid(), $email, $name)
         );
         $record->id = $DB->insert_record('recommend_request', $record);
         $this->requests[$record->id] = $record;

@@ -41,7 +41,15 @@ class restore_recommend_activity_structure_step extends restore_activity_structu
     protected function define_structure() {
 
         $paths = array();
+        $userinfo = $this->get_setting_value('userinfo');
+
         $paths[] = new restore_path_element('recommend', '/activity/recommend');
+        $paths[] = new restore_path_element('recommend_question', '/activity/recommend/questions/question');
+
+        if ($userinfo) {
+            $paths[] = new restore_path_element('recommend_request', '/activity/recommend/requests/request');
+            $paths[] = new restore_path_element('recommend_reply', '/activity/recommend/requests/request/replies/reply');
+        }
 
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
@@ -59,13 +67,8 @@ class restore_recommend_activity_structure_step extends restore_activity_structu
         $oldid = $data->id;
         $data->course = $this->get_courseid();
 
-        if (empty($data->timecreated)) {
-            $data->timecreated = time();
-        }
-
-        if (empty($data->timemodified)) {
-            $data->timemodified = time();
-        }
+        $data->timecreated = $this->apply_date_offset($data->timecreated);
+        $data->timemodified = $this->apply_date_offset($data->timemodified);
 
         if ($data->grade < 0) {
             // Scale found, get mapping.
@@ -75,6 +78,57 @@ class restore_recommend_activity_structure_step extends restore_activity_structu
         // Create the recommend instance.
         $newitemid = $DB->insert_record('recommend', $data);
         $this->apply_activity_instance($newitemid);
+    }
+
+    protected function process_recommend_question($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->recommendid = $this->get_new_parentid('recommend');
+
+        // insert the entry record
+        $newitemid = $DB->insert_record('recommend_question', $data);
+        $this->set_mapping('recommend_question', $oldid, $newitemid);
+    }
+
+    protected function process_recommend_request($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->recommendid = $this->get_new_parentid('recommend');
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $data->timerequested = $this->apply_date_offset($data->timerequested);
+        $data->timecompleted = $this->apply_date_offset($data->timecompleted);
+
+        // insert the entry record
+        try {
+            $newitemid = $DB->insert_record('recommend_request', $data);
+        } catch (dml_exception $e) {
+            // Duplicate of secret.
+            $data->secret = mod_recommend_request_manager::generate_secret($data->userid, $data->email, $data->name);
+            $newitemid = $DB->insert_record('recommend_request', $data);
+        }
+        $this->set_mapping('recommend_request', $oldid, $newitemid);
+    }
+
+    protected function process_recommend_reply($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->recommendid = $this->get_new_parentid('recommend');
+        $data->requestid = $this->get_new_parentid('recommend_request');
+        $data->questionid = $this->get_mappingid('recommend_question', $data->questionid);
+
+        // insert the entry record
+        $newitemid = $DB->insert_record('recommend_reply', $data);
+        $this->set_mapping('recommend_reply', $oldid, $newitemid);
     }
 
     /**

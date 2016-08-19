@@ -48,15 +48,48 @@ class backup_recommend_activity_structure_step extends backup_activity_structure
         // Define the root element describing the recommend instance.
         $recommend = new backup_nested_element('recommend', array('id'), array(
             'name', 'intro', 'introformat', 'timecreated', 'timemodified',
-            'grade', 'maxrequests', 'requiredrecommend'));
+            'grade', 'maxrequests', 'requiredrecommend', 'completiononlyaccepted',
+            'requesttemplatesubject', 'requesttemplatebody', 'requesttemplatebodyformat'));
 
-        // If we had more elements, we would build the tree here.
+        $questions = new backup_nested_element('questions');
+
+        $question = new backup_nested_element('question', array('id'), array(
+            'sortorder', 'type', 'question', 'questionformat', 'addinfo'));
+
+        $requests = new backup_nested_element('requests');
+
+        $request = new backup_nested_element('request', array('id'), array(
+            'userid', 'email', 'name', 'status', 'timerequested', 'timecompleted', 'secret'));
+
+        $replies = new backup_nested_element('replies');
+
+        $reply = new backup_nested_element('reply', array('id'), array(
+            'questionid', 'reply'));
+
+        // Build the tree
+        $recommend->add_child($questions);
+        $questions->add_child($question);
+
+        $recommend->add_child($requests);
+        $requests->add_child($request);
+
+        $request->add_child($replies);
+        $replies->add_child($reply);
 
         // Define data sources.
         $recommend->set_source_table('recommend', array('id' => backup::VAR_ACTIVITYID));
+        $question->set_source_table('recommend_question', array('recommendid' => backup::VAR_PARENTID));
 
-        // If we were referring to other tables, we would annotate the relation
-        // with the element's annotate_ids() method.
+        // All the rest of elements only happen if we are including user info
+        if ($userinfo) {
+            $request->set_source_table('recommend_request', array('recommendid' => backup::VAR_PARENTID));
+            $reply->set_source_table('recommend_reply',
+                    array('recommendid' => backup::VAR_ACTIVITYID, 'requestid' => backup::VAR_PARENTID));
+        }
+
+        // Define id annotations
+        //$recommend->annotate_ids('scale', 'scale');
+        $request->annotate_ids('user', 'userid');
 
         // Define file annotations (we do not use itemid in this example).
         $recommend->annotate_files('mod_recommend', 'intro', null);

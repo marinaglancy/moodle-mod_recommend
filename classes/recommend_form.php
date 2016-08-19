@@ -36,11 +36,24 @@ require_once($CFG->libdir.'/formslib.php');
  */
 class mod_recommend_recommend_form extends moodleform {
 
-    var $editable = true;
+    /** @var int */
+    protected $mode = 0;
 
-    function __construct($customdata=null, $editable=true) {
+    const MODE_FILL = 0;
+    const MODE_REVIEW = 1;
+    const MODE_EDIT = 2;
+    const MODE_PREVIEW = 3;
+
+    function __construct($customdata = null, $mode = 0) {
+        global $PAGE;
         $attributes = ['class' => 'mod-recommend-recommendation'];
-        $this->editable = $editable;
+        if ($mode == self::MODE_EDIT) {
+            // TODO disable form leave warning.
+            $attributes['class'] .= ' editing';
+            $PAGE->requires->js_call_amd('mod_recommend/edit', 'setup',
+                ['types' => mod_recommend_questions_manager::get_types()]);
+        }
+        $this->mode = $mode;
         parent::__construct(null, $customdata, 'post', '', $attributes);
     }
 
@@ -50,10 +63,9 @@ class mod_recommend_recommend_form extends moodleform {
 
         /** @var mod_recommend_recommendation */
         $recommendation = $this->_customdata['recommendation'];
-        $freeze = !$this->editable;
         $data = isset($this->_customdata['data']) ? $this->_customdata['data'] : [];
 
-        if (!$freeze) {
+        if ($this->mode == self::MODE_FILL) {
             $mform->addElement('hidden', 's', $recommendation->get_secret());
             $mform->setType('s', PARAM_RAW);
         }
@@ -61,50 +73,10 @@ class mod_recommend_recommend_form extends moodleform {
         $questions = $recommendation->get_questions();
 
         foreach ($questions as $question) {
-            $label = 'question'.$question->id.'_label';
-            $elementlabel = 'question'.$question->id;
-            $qtext = format_text($question->question, $question->questionformat);
-            if ($question->type === 'label') {
-                $mform->addElement('static', $label, '', $qtext);
-            } else if ($question->type === 'textarea') {
-                $options = ['enable_filemanagement' => false, 'maxfiles' => 0];
-                if ($freeze) {
-                    $mform->addElement('static', $elementlabel, $qtext); // TODO css class
-                } else {
-                    $mform->addElement('editor', $elementlabel, $qtext, null, $options);
-                }
-            } else if ($question->type === 'textfield' || $question->type === 'email') {
-                if ($freeze) {
-                    // TODO nicer
-                    $mform->addElement('static', $elementlabel, $qtext);
-                } else {
-                    $mform->addElement('text', $elementlabel, $qtext, ['size' => 50]);
-                    $mform->setType($elementlabel, PARAM_NOTAGS);
-                }
-                if ($question->type === 'email') {
-                    $mform->setDefault($elementlabel, $recommendation->get_request_email());
-                }
-            } else if ($question->type === 'radio') {
-                $lines = preg_split('/\\n/', $question->addinfo, -1, PREG_SPLIT_NO_EMPTY);
-                $elements = [];
-                foreach ($lines as $line) {
-                    $parts = preg_split('|/|', $line, 2);
-                    if ($freeze) {
-                        $prefix = ($data['question'.$question->id] == $parts[0]) ? '[X]' : '[ ]';
-                        $elements[] = $mform->createElement('static',
-                            $elementlabel.'_'.$parts[0], '', $prefix.' '.$parts[1]);
-                    } else {
-                        $name = '<span class="accesshide">'.strip_tags($qtext).' </span>'.$parts[1];
-                        $elements[] = $mform->createElement('radio',
-                            $elementlabel, '', $name, $parts[0]);
-                    }
-                }
-
-                $mform->addElement('group', $label, $qtext, $elements, ['&nbsp;'], false);
-            }
+            $question->add_to_form($mform, $recommendation, $data, $this->mode);
         }
 
-        if (!$freeze) {
+        if ($this->mode == self::MODE_FILL) {
             $this->add_action_buttons(false);
         }
 
@@ -127,5 +99,12 @@ class mod_recommend_recommend_form extends moodleform {
         }
 
         return $errors;
+    }
+
+    public function display() {
+        global $PAGE;
+        if ($this->mode == self::MODE_EDIT) {
+        }
+        parent::display();
     }
 }

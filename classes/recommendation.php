@@ -37,7 +37,7 @@ class mod_recommend_recommendation {
     protected $recommend;
     protected $request;
     protected $user;
-    protected $questions;
+    protected $questionsmanager;
 
     public function __construct($secret, $id = null) {
         global $DB, $CFG;
@@ -55,6 +55,7 @@ class mod_recommend_recommendation {
         $this->recommend = $DB->get_record('recommend', ['id' => $request->recommendid]);
         $this->request = $request;
         $this->user = $DB->get_record('user', ['id' => $request->userid]);
+        $this->questionsmanager = new mod_recommend_questions_manager($this->cm, $this->recommend);
     }
 
     /**
@@ -81,12 +82,12 @@ class mod_recommend_recommendation {
         return $this->request->email;
     }
 
+    public function get_request_name() {
+        return $this->request->name;
+    }
+
     public function get_questions() {
-        global $DB;
-        if ($this->questions === null) {
-            $this->questions = $DB->get_records('recommend_question', [], 'sortorder');
-        }
-        return $this->questions;
+        return $this->questionsmanager->get_questions();
     }
 
     /**
@@ -160,7 +161,9 @@ class mod_recommend_recommendation {
             foreach ($replies as $reply) {
                 $data['question'.$reply->questionid] = $reply->reply;
             }
-            $form = new mod_recommend_recommend_form(['recommendation' => $this, 'data' => $data], false);
+            $form = new mod_recommend_recommend_form(
+                ['recommendation' => $this, 'data' => $data],
+                    mod_recommend_recommend_form::MODE_REVIEW);
             $form->display();
 
             if ($this->request->status == mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED &&

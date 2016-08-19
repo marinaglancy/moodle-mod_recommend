@@ -132,8 +132,9 @@ function recommend_delete_instance($id) {
 
     // Delete any dependent records here.
 
-    $DB->delete_records('recommend_request', ['recommendid' => $recommend->id]);
     $DB->delete_records('recommend_reply', ['recommendid' => $recommend->id]);
+    $DB->delete_records('recommend_request', ['recommendid' => $recommend->id]);
+    $DB->delete_records('recommend_question', ['recommendid' => $recommend->id]);
     $DB->delete_records('recommend', array('id' => $recommend->id));
 
     recommend_grade_item_delete($recommend);
@@ -417,9 +418,13 @@ function recommend_pluginfile($course, $cm, $context, $filearea, array $args, $f
  * @param settings_navigation $settingsnav complete settings navigation tree
  * @param navigation_node $recommendnode recommend administration node
  */
-//function recommend_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $recommendnode=null) {
-    // TODO Delete this function and its docblock, or implement it.
-//}
+function recommend_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $recommendnode=null) {
+    global $PAGE;
+    if (has_capability('mod/recommend:editquestions', $PAGE->cm->context)) {
+        $url = new moodle_url('/mod/recommend/edit.php', array('id' => $PAGE->cm->id));
+        $recommendnode->add('Edit questions', $url, navigation_node::TYPE_SETTING); // TODO string
+    }
+}
 
 /**
  * Validate comment parameter before perform other comments actions

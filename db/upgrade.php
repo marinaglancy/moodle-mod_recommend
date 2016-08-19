@@ -75,5 +75,27 @@ function xmldb_recommend_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016081400, 'recommend');
     }
 
+    if ($oldversion < 2016081700) {
+
+        // Define field recommendid to be added to recommend_question.
+        $table = new xmldb_table('recommend_question');
+        $field = new xmldb_field('recommendid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'id');
+
+        // Conditionally launch add field recommendid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define key recommendid (foreign) to be added to recommend_question.
+        $table = new xmldb_table('recommend_question');
+        $key = new xmldb_key('recommendid', XMLDB_KEY_FOREIGN, array('recommendid'), 'recommend', array('id'));
+
+        // Launch add key recommendid.
+        $dbman->add_key($table, $key);
+
+        // Recommend savepoint reached.
+        upgrade_mod_savepoint(true, 2016081700, 'recommend');
+    }
+
     return true;
 }
