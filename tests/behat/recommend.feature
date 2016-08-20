@@ -1,5 +1,5 @@
 @mod @mod_recommend
-Feature: mod_recommend features
+Feature: Requesting, filling and accepting recommendation
   In order to use this plugin
   As a user
   I need to request recommendations
@@ -18,22 +18,26 @@ Feature: mod_recommend features
       | teacher1 | C1 | editingteacher |
       | student1 | C1 | student |
       | student2 | C1 | student |
-    And recommendation module contains the following questions:
+    And the following "activities" exist:
+      | activity   | name                | course | idnumber   |
+      | recommend  | Test recommendation | C1     | recommend1 |
+    And recommendation module "Test recommendation" contains the following questions:
       | type | question | addinfo |
       | label | welcome | |
-      | radio | Analytic abilities | 1/Below average\n2/Average\n3/Good\n4/Excellent | 
+      | radio | Analytic abilities | 1/Below average\n2/Average\n3/Good\n4/Excellent |
       | textarea | Write essay | |
-      | textfield | your name | |
-      | email | E-mail address | |
+      | textfield | your phone | |
+      | textfield | your name | name |
+      | textfield | E-mail address | email |
 
   Scenario: Recommendation request workflow
     # Teacher creates recommendation activity
-    When I log in as "teacher1"
-    And I follow "Course 1"
-    And I turn editing mode on
-    And I add a "Recommendation request" to section "1" and I fill the form with:
-      | Name | Test recommendation |
-    And I log out
+    #When I log in as "teacher1"
+    #And I follow "Course 1"
+    #And I turn editing mode on
+    #And I add a "Recommendation request" to section "1" and I fill the form with:
+    #  | Name | Test recommendation |
+    #And I log out
     # Student sends recommendation requests
     And I log in as "student1"
     And I follow "Course 1"
@@ -57,11 +61,13 @@ Feature: mod_recommend features
     And I open the recommendation as "Testperson1"
     And I should see "Recommendation for Student 1"
     And I should see "welcome"
+    And the field "your name" matches value "Testperson1"
     And the field "E-mail address" matches value "recommendator1@someaddress.invalid"
     And I set the following fields to these values:
       | Analytic abilities Good | 1 |
       | Write essay | I had a good experience working with this person |
       | your name | The Big Boss |
+      | your phone | 0123456789 |
     And I press "Save changes"
     And I should see "Recommendation for Student 1"
     And I should see "Thank you, your recommendation has been processed."
@@ -77,7 +83,7 @@ Feature: mod_recommend features
     And I log in as "teacher1"
     And I follow "Course 1"
     And I follow "Test recommendation"
-    And I click on "Recommendation completed" "link" in the "//table//tr[contains(.,'Student 1')]/td[contains(@class,'c1')]" "xpath_element"   
+    And I click on "Recommendation completed" "link" in the "//table//tr[contains(.,'Student 1')]/td[contains(@class,'c1')]" "xpath_element"
     And I should see "Name of the recommending person: Testperson1"
     And I should see "Student 1"
     And I should see "Status:  Recommendation completed"
@@ -85,6 +91,7 @@ Feature: mod_recommend features
     And I should see "[X] Good"
     And I should see "I had a good experience working with this person"
     And I should see "The Big Boss"
+    And I should see "0123456789"
     And I should see "recommendator1@someaddress.invalid"
     And I click on "Accept" "link" in the "#region-main" "css_element"
     And I wait to be redirected
@@ -97,4 +104,3 @@ Feature: mod_recommend features
     And I should see "Your recommendations"
     And "Recommendation accepted" "text" should exist in the "Testperson1" "table_row"
     And I log out
-    

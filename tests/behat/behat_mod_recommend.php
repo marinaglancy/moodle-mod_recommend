@@ -40,18 +40,22 @@ use Behat\Behat\Context\Step\Given as Given,
 class behat_mod_recommend extends behat_base {
 
     /**
+     * Generates the question in a recommendation module instance
      *
+     * @param string $recommendname
      * @param TableNode $data information about the questions to add.
      *
-     * @Given /^recommendation module contains the following questions:$/
+     * @Given /^recommendation module "([^"]*)" contains the following questions:$/
      */
-    public function recommendation_contains_the_following_questions(TableNode $data) {
+    public function recommendation_contains_the_following_questions($recommendname, TableNode $data) {
         global $DB;
+
+        $recommend = $DB->get_record('recommend', ['name' => $recommendname], '*', MUST_EXIST);
 
         // Add the questions.
         $sortorder = 1;
         foreach ($data->getHash() as $tabledata) {
-            $data = ['sortorder' => $sortorder++];
+            $data = ['sortorder' => $sortorder++, 'recommendid' => $recommend->id];
             foreach ($tabledata as $key => $value) {
                 $data[$key] = preg_replace('/\\\\n/', "\n", $value);
             }
