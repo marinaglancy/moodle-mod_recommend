@@ -54,6 +54,14 @@ class mod_recommend_questions_manager {
         return $result;
     }
 
+    /**
+     * Returns the course module object
+     * @return cm_info
+     */
+    public function get_cm() {
+        return $this->cm;
+    }
+
     public function get_questions() {
         global $DB;
         if ($this->questions === null) {
@@ -101,8 +109,6 @@ class mod_recommend_questions_manager {
     }
 
     public function action($action, $questionid, $data = null) {
-        global $DB;
-
         if ($action === 'add' && !$questionid) {
             $question = null;
         } else {
@@ -137,9 +143,7 @@ class mod_recommend_questions_manager {
             $this->questions = null;
         }
         if ($action === 'edit') {
-            $data->id = $questionid;
-            unset($data->type); // Can't be updated.
-            $DB->update_record('recommend_question', $data);
+            $question->update($data);
             $this->questions = null;
         }
         if ($action === 'add') {
@@ -148,8 +152,7 @@ class mod_recommend_questions_manager {
             } else {
                 $data->sortorder = $this->get_questions_count();
             }
-            $data->recommendid = $this->recommend->id;
-            $DB->insert_record('recommend_question', $data);
+            mod_recommend_question::create($this->cm, $data);
             $this->questions = null;
         }
     }
@@ -189,6 +192,5 @@ class mod_recommend_questions_manager {
             ];
             $mform->addElement('select', 'addinfo', 'Prefill with:',  $prefill); // TODO strings
         }
-
     }
 }

@@ -43,7 +43,9 @@ if ($id) {
 }
 
 require_login($course, true, $cm);
-require_capability('mod/recommend:editquestions', $PAGE->context);
+if (!has_capability('mod/recommend:editquestions', $PAGE->context)) {
+    redirect($cm->url);
+}
 $recommend = $PAGE->activityrecord;
 
 $questionmanager = new mod_recommend_questions_manager($cm, $recommend);
@@ -54,7 +56,6 @@ $PAGE->set_title(format_string($recommend->name));
 $PAGE->set_heading(format_string($course->fullname));
 
 if ($action) {
-    require_sesskey();
     if ($action === 'edit' || $action === 'add') {
         $subtitle = get_string($action === 'edit' ? 'editquestion' : 'addquestion', 'mod_recommend');
         $PAGE->navbar->add($subtitle);
@@ -79,6 +80,7 @@ if ($action) {
             redirect($editurl);
         }
     } else {
+        require_sesskey();
         $questionmanager->action($action, $questionid);
         redirect($editurl);
     }

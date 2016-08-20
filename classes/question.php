@@ -110,15 +110,42 @@ class mod_recommend_question {
     }
 
     public function duplicate() {
-        global $DB;
-        $obj = (array)$this->record;
-        unset($obj['id']);
-        return $DB->insert_record('recommend_question', $obj);
+        $data = (object)(array)$this->record;
+        unset($data->id);
+        $cm = $this->qmanager->get_cm();
+        return self::create($cm, $data);
     }
 
     public function delete() {
         global $DB;
-        $DB->delete_records('recommend_question', ['id' => $this->record->id]);
         $DB->delete_records('recommend_reply', ['questionid' => $this->record->id]);
+        $DB->delete_records('recommend_question', ['id' => $this->record->id]);
+        $cm = $this->qmanager->get_cm();
+        mod_recommend\event\question_deleted::create_from_question($cm, $this->record)->trigger();
+    }
+
+    public function update($data) {
+        global $DB;
+        $data->id = $this->record->id;
+        unset($data->recommendid);
+        unset($data->type); // Can not be updated.
+        $DB->update_record('recommend_question', $data);
+        foreach ($data as $key => $value) {
+            if (property_exists($this->record, $key)) {
+                $this->record->$key = $value;
+            }
+        }
+        $cm = $this->qmanager->get_cm();
+        mod_recommend\event\question_updated::create_from_question($cm, $this->record)->trigger();
+    }
+
+    public static function create(cm_info $cm, $data) {
+        global $DB;
+        $data->recommendid = $cm->instance;
+        $data->id = $DB->insert_record('recommend_question', $data);
+        $data = (object)((array)$data + ['question' => null, 'addinfo' => null,
+            'questionformat' => FORMAT_MOODLE, 'sortorder' => 0]);
+        mod_recommend\event\question_created::create_from_question($cm, $data)->trigger();
+        return $data->id;
     }
 }
