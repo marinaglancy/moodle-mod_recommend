@@ -75,7 +75,7 @@ class mod_recommend_question_form extends moodleform {
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
     public function validation($data, $files) {
-        // TODO.
+        // TODO add validation.
         return parent::validation($data, $files);
     }
 }

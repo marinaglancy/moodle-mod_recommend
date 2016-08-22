@@ -99,7 +99,8 @@ class mod_recommend_request_manager {
                 $requests = $this->get_requests();
                 foreach ($requests as $request) {
                     if (strtolower($request->email) === strtolower($email)) {
-                        // TODO add message about duplicate email.
+                        \core\notification::add(get_string('error_emailduplicated', 'mod_recommend'),
+                                \core\output\notification::NOTIFY_ERROR);
                         continue 2;
                     }
                 }

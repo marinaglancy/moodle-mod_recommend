@@ -75,7 +75,7 @@ class mod_recommend_question {
             }
         } else if ($question->type === 'textfield') {
             if ($freeze) {
-                // TODO nicer
+                // TODO add some CSS class maybe so it is displayed with a border.
                 $mform->addElement('static', $elementlabel, $qtext);
             } else {
                 $mform->addElement('text', $elementlabel, $qtext, ['size' => 50] + $attrs);

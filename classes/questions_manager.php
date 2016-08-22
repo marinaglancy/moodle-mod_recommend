@@ -87,7 +87,7 @@ class mod_recommend_questions_manager {
             return $questions[$id];
         }
         if ($strictness == MUST_EXIST) {
-            throw new moodle_exception('Question not found'); // TODO string
+            throw new moodle_exception(get_string('error_questionnotfound', 'mod_recommend'));
         }
         return null;
     }
@@ -162,35 +162,33 @@ class mod_recommend_questions_manager {
         return ['maxfiles' => 0];
     }
 
-    public static function add_edit_elements($mform, $data) {
-        // TODO
+    public static function add_edit_elements(MoodleQuickForm $mform, $data) {
         $editoroptions = self::editor_options($data);
 
         $types = self::get_types();
-        $mform->addElement('select', 'type', 'Type',  $types); // TODO strings
+        $mform->addElement('select', 'type', get_string('questiontype', 'mod_recommend'), $types);
         $mform->freeze('type');
 
         if ($data->type === 'label') {
-            $mform->addElement('editor', 'question_editor', 'Contents', $editoroptions); // TODO strings
+            $mform->addElement('editor', 'question_editor', get_string('labelcontents', 'mod_recommend'), $editoroptions);
         } else {
-            $mform->addElement('text', 'question', 'Question', ['size' => 64]); // TODO strings
+            $mform->addElement('text', 'question', get_string('question', 'mod_recommend'), ['size' => 64]);
             $mform->setType('question', PARAM_NOTAGS);
             $mform->addElement('hidden', 'questionformat', FORMAT_MOODLE);
             $mform->setType('questionformat', PARAM_INT);
         }
 
         if ($data->type === 'radio') {
-            $mform->addElement('textarea', 'addinfo', 'Options'); // TODO strings
-            $mform->addElement('static', 'addinfodescription', '',
-                    'Specify one option per line, prefix each line with the weight and / sign, for example:<br><pre>1/Bad<br>3/Good<br>5/Excellent</pre>');
+            $mform->addElement('textarea', 'addinfo', get_string('options', 'mod_recommend'));
+            $mform->addHelpButton('addinfo', 'options');
         }
         if ($data->type === 'textfield') {
             $prefill = [
                 '' => '-',
-                'email' => 'E-mail',
-                'name' => 'Name',
+                'email' => get_string('email'),
+                'name' => get_string('recommendatorname', 'mod_recommend'),
             ];
-            $mform->addElement('select', 'addinfo', 'Prefill with:',  $prefill); // TODO strings
+            $mform->addElement('select', 'addinfo', get_string('prefillwith', 'mod_recommend'),  $prefill);
         }
     }
 }

@@ -68,7 +68,7 @@ if ($action === null) {
         redirect($viewurl);
     } else if ($data = $form->get_data()) {
         $manager->add_requests($data);
-        // TODO add success message.
+        \core\notification::add(get_string('requestscreated', 'mod_recommend'));
         redirect($viewurl);
     }
 } else if ($action === 'deleterequest' && $requestid) {

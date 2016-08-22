@@ -422,7 +422,8 @@ function recommend_extend_settings_navigation(settings_navigation $settingsnav, 
     global $PAGE;
     if (has_capability('mod/recommend:editquestions', $PAGE->cm->context)) {
         $url = new moodle_url('/mod/recommend/edit.php', array('id' => $PAGE->cm->id));
-        $recommendnode->add('Edit questions', $url, navigation_node::TYPE_SETTING); // TODO string
+        $recommendnode->add(get_string('editquestions', 'mod_recommend'), $url,
+                navigation_node::TYPE_SETTING);
     }
 }
 
