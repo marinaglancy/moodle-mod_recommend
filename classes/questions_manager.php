@@ -40,16 +40,26 @@ class mod_recommend_questions_manager {
     /** @var mod_recommend_question[] */
     protected $questions;
 
+    /**
+     * Constructor
+     *
+     * @param cm_info $cm
+     * @param stdClass $recommend
+     */
     public function __construct(cm_info $cm, $recommend) {
         $this->cm = $cm;
         $this->recommend = $recommend;
     }
 
+    /**
+     * Returns list of names of available question types
+     * @return string[]
+     */
     public static function get_types() {
         $types = ['label', 'radio', 'textarea', 'textfield'];
         $result = [];
         foreach ($types as $type) {
-            $result[$type] = get_string('type'.$type,'mod_recommend');
+            $result[$type] = get_string('type' . $type, 'mod_recommend');
         }
         return $result;
     }
@@ -62,6 +72,10 @@ class mod_recommend_questions_manager {
         return $this->cm;
     }
 
+    /**
+     * Returns the list of questions in the current module
+     * @return mod_recommend_question[]
+     */
     public function get_questions() {
         global $DB;
         if ($this->questions === null) {
@@ -81,6 +95,12 @@ class mod_recommend_questions_manager {
         return $this->questions;
     }
 
+    /**
+     * Returns one question from the current module
+     * @param int $id
+     * @param int $strictness
+     * @return mod_recommend_question
+     */
     public function get_question($id, $strictness = MUST_EXIST) {
         $questions = $this->get_questions();
         if (isset($questions[$id])) {
@@ -92,14 +112,27 @@ class mod_recommend_questions_manager {
         return null;
     }
 
+    /**
+     * Returns number of questions in the current module
+     * @return int
+     */
     public function get_questions_count() {
         return count($questions = $this->get_questions());
     }
 
+    /**
+     * Activity object (record from table recommend)
+     * @return stdClass
+     */
     public function get_recommend() {
         return $this->recommend;
     }
 
+    /**
+     * Changes sort order of a question, no events fired
+     * @param int $questionid
+     * @param int $sortorder
+     */
     protected function set_sortorder($questionid, $sortorder) {
         global $DB;
         $DB->update_record('recommend_question', ['id' => $questionid, 'sortorder' => $sortorder]);
@@ -108,6 +141,12 @@ class mod_recommend_questions_manager {
         }
     }
 
+    /**
+     * Performs an action on the question
+     * @param string $action action - add, edit, moveup, movedown, duplicate, delete
+     * @param int $questionid
+     * @param null|stdClass $data only for actions 'add' and 'edit'
+     */
     public function action($action, $questionid, $data = null) {
         if ($action === 'add' && !$questionid) {
             $question = null;
@@ -157,38 +196,13 @@ class mod_recommend_questions_manager {
         }
     }
 
+    /**
+     * Options for the form editor element
+     * @param stdClass $data
+     * @return array
+     */
     public static function editor_options($data) {
         // Maybe we add files support later.
         return ['maxfiles' => 0];
-    }
-
-    public static function add_edit_elements(MoodleQuickForm $mform, $data) {
-        $editoroptions = self::editor_options($data);
-
-        $types = self::get_types();
-        $mform->addElement('select', 'type', get_string('questiontype', 'mod_recommend'), $types);
-        $mform->freeze('type');
-
-        if ($data->type === 'label') {
-            $mform->addElement('editor', 'question_editor', get_string('labelcontents', 'mod_recommend'), $editoroptions);
-        } else {
-            $mform->addElement('text', 'question', get_string('question', 'mod_recommend'), ['size' => 64]);
-            $mform->setType('question', PARAM_NOTAGS);
-            $mform->addElement('hidden', 'questionformat', FORMAT_MOODLE);
-            $mform->setType('questionformat', PARAM_INT);
-        }
-
-        if ($data->type === 'radio') {
-            $mform->addElement('textarea', 'addinfo', get_string('options', 'mod_recommend'));
-            $mform->addHelpButton('addinfo', 'options');
-        }
-        if ($data->type === 'textfield') {
-            $prefill = [
-                '' => '-',
-                'email' => get_string('email'),
-                'name' => get_string('recommendatorname', 'mod_recommend'),
-            ];
-            $mform->addElement('select', 'addinfo', get_string('prefillwith', 'mod_recommend'),  $prefill);
-        }
     }
 }

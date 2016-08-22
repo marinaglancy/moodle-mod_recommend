@@ -34,14 +34,22 @@ defined('MOODLE_INTERNAL') || die();
 class mod_recommend_recommendation {
     /** @var cm_info */
     protected $cm;
+    /** @var stdClass */
     protected $recommend;
+    /** @var stdClass */
     protected $request;
+    /** @var stdClass */
     protected $user;
+    /** @var mod_recommend_questions_manager */
     protected $questionsmanager;
 
+    /**
+     * Constructor
+     * @param string $secret
+     * @param int $id
+     */
     public function __construct($secret, $id = null) {
         global $DB, $CFG;
-        require_once($CFG->dirroot.'/mod/recommend/locallib.php');
         if ($secret) {
             $request = $DB->get_record('recommend_request', ['secret' => $secret]);
             if (!$request) {
@@ -59,40 +67,63 @@ class mod_recommend_recommendation {
     }
 
     /**
-     *
+     * Returns the course module
      * @return cm_info
      */
     public function get_cm() {
         return $this->cm;
     }
 
+    /**
+     * Display name of the recommendation
+     * @return string
+     */
     public function get_title() {
         return get_string('recommendationfor', 'mod_recommend', fullname($this->user));
     }
 
+    /**
+     * Is this recommendation already submitted?
+     * @return bool
+     */
     public function is_submitted() {
         return $this->request->status > mod_recommend_request_manager::STATUS_REQUEST_SENT;
     }
 
+    /**
+     * Getter for secret
+     * @return string
+     */
     public function get_secret() {
         return $this->request->secret;
     }
 
+    /**
+     * Getter for email
+     * @return string
+     */
     public function get_request_email() {
         return $this->request->email;
     }
 
+    /**
+     * Getter for the recommending person name
+     * @return string
+     */
     public function get_request_name() {
         return $this->request->name;
     }
 
+    /**
+     * Returns the list of questions in the current module
+     * @return mod_recommend_question[]
+     */
     public function get_questions() {
         return $this->questionsmanager->get_questions();
     }
 
     /**
-     *
-     * @global moodle_database $DB
+     * Saves the form data
      * @param stdClass $data
      */
     public function save($data) {
@@ -122,7 +153,7 @@ class mod_recommend_recommendation {
             ];
         }
 
-        //$DB->delete_records('recommend_reply', ['requestid' => $this->request->id]);
+        $DB->delete_records('recommend_reply', ['requestid' => $this->request->id]);
         $now = time();
         $DB->insert_records('recommend_reply', $answers);
         $DB->update_record('recommend_request', ['id' => $this->request->id,
@@ -135,6 +166,9 @@ class mod_recommend_recommendation {
         // TODO send email(s).
     }
 
+    /**
+     * Shows a request with or without completed recommendation
+     */
     public function show_request() {
         global $DB, $OUTPUT, $CFG;
         require_once($CFG->dirroot.'/comment/lib.php');
@@ -190,6 +224,12 @@ class mod_recommend_recommendation {
         echo $comment->output();
     }
 
+    /**
+     * Updates user completion for the module
+     * @param cm_info $cm
+     * @param stdClass $recommend
+     * @param int $userid
+     */
     protected static function update_completion(cm_info $cm, $recommend, $userid) {
         global $CFG;
         if (!$recommend->requiredrecommend) {
@@ -197,13 +237,18 @@ class mod_recommend_recommendation {
         }
 
         require_once($CFG->libdir.'/completionlib.php');
-        // Update completion state
+        // Update completion state.
         $completion = new completion_info($cm->get_course());
         if ($completion->is_enabled($cm) && $recommend->requiredrecommend) {
             $completion->update_state($cm, COMPLETION_UNKNOWN, $userid);
         }
     }
 
+    /**
+     * Returns a request by id
+     * @param int $requestid
+     * @return stdClass
+     */
     protected static function get_request_by_id($requestid) {
         global $DB;
         return $DB->get_record('recommend_request',
@@ -212,6 +257,14 @@ class mod_recommend_recommendation {
 
     }
 
+    /**
+     * Accept a request
+     *
+     * @param cm_info $cm
+     * @param stdClass $recommend
+     * @param int $requestid
+     * @return bool
+     */
     public static function accept_request(cm_info $cm, $recommend, $requestid) {
         global $DB;
         if (!($request = self::get_request_by_id($requestid))) {
@@ -225,6 +278,13 @@ class mod_recommend_recommendation {
         return true;
     }
 
+    /**
+     * Reject a request
+     * @param cm_info $cm
+     * @param stdClass $recommend
+     * @param int $requestid
+     * @return bool
+     */
     public static function reject_request(cm_info $cm, $recommend, $requestid) {
         global $DB;
         if (!($request = self::get_request_by_id($requestid))) {

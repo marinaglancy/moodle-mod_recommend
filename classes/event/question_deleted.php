@@ -63,6 +63,12 @@ class question_deleted extends \core\event\base {
         return get_string('eventquestiondeleted', 'recommend');
     }
 
+    /**
+     * Method for quick creating from object
+     * @param \cm_info $cm
+     * @param \stdClass $question
+     * @return self
+     */
     public static function create_from_question($cm, $question) {
         $event = static::create(array(
             'objectid' => $question->id,

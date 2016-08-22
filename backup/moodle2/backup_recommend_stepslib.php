@@ -66,7 +66,7 @@ class backup_recommend_activity_structure_step extends backup_activity_structure
         $reply = new backup_nested_element('reply', array('id'), array(
             'questionid', 'reply'));
 
-        // Build the tree
+        // Build the tree.
         $recommend->add_child($questions);
         $questions->add_child($question);
 
@@ -80,15 +80,14 @@ class backup_recommend_activity_structure_step extends backup_activity_structure
         $recommend->set_source_table('recommend', array('id' => backup::VAR_ACTIVITYID));
         $question->set_source_table('recommend_question', array('recommendid' => backup::VAR_PARENTID));
 
-        // All the rest of elements only happen if we are including user info
+        // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
             $request->set_source_table('recommend_request', array('recommendid' => backup::VAR_PARENTID));
             $reply->set_source_table('recommend_reply',
                     array('recommendid' => backup::VAR_ACTIVITYID, 'requestid' => backup::VAR_PARENTID));
         }
 
-        // Define id annotations
-        //$recommend->annotate_ids('scale', 'scale');
+        // Define id annotations.
         $request->annotate_ids('user', 'userid');
 
         // Define file annotations (we do not use itemid in this example).

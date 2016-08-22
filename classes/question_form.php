@@ -36,6 +36,9 @@ require_once($CFG->libdir.'/formslib.php');
  */
 class mod_recommend_question_form extends moodleform {
 
+    /**
+     * Form definition
+     */
     public function definition() {
 
         $data = $this->_customdata['data'];
@@ -52,7 +55,7 @@ class mod_recommend_question_form extends moodleform {
         $mform->addElement('hidden', 'questionid');
         $mform->setType('questionid', PARAM_INT);
 
-        mod_recommend_questions_manager::add_edit_elements($mform, $data);
+        mod_recommend_question::add_edit_elements($mform, $data);
 
         $this->add_action_buttons();
 

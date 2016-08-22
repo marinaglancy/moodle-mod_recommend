@@ -28,16 +28,14 @@ function($, ajax, str, config, notification, l) {
             var buildlink = function(action, id, content) {
                 var url = window.location.href.match(/(^[^#]*)/)[0];
                 var newurl = url + "&action=" + action + "&questionid=" + id + '&sesskey=' + config.sesskey;
-                return '<a href="'+newurl+'" data-action="'+action+'" data-questionid="'+id+'">' +
-                        content + '</a> ';
+                return '<a href="' + newurl + '" data-action="' + action + '" data-questionid="' + id + '">' + content + '</a> ';
             };
 
             var inititem = function(item, isfirst, islast) {
                 var myRegexp = /^(fitem|fgroup)_id_question(\d+)(_label)?$/g;
                 var match = myRegexp.exec(item.attr('id'));
                 var id = parseInt(match[2]);
-                var editcontrols = $('<div class="editcontrols" data-questionid="'+id+'"></div>');
-                var url = window.location.href.match(/(^[^#]*)/)[0];
+                var editcontrols = $('<div class="editcontrols" data-questionid="' + id + '"></div>');
                 if (id) {
                     if (!isfirst) {
                         editcontrols.append(buildlink('moveup', id, 'up'));
@@ -60,7 +58,7 @@ function($, ajax, str, config, notification, l) {
             var length = fitem.length;
             fitem.each(
                 function(index) {
-                    inititem($(this), index == 0, index == length - 1);
+                    inititem($(this), index === 0, index === length - 1);
                 });
             var dummyitem = $('<div class="fitem dummyitem" id="fitem_id_question0">&nbsp;<br>&nbsp;<br></div>');
             $(selector).append(dummyitem);
@@ -68,17 +66,17 @@ function($, ajax, str, config, notification, l) {
 
             $('body').on('click', selector + ' .editcontrols a[data-action=add]', function(e) {
                 e.preventDefault();
-                var href = $(this).attr('href')/* + '&sesskey=' + M.cfg.sesskey*/;
+                var href = $(this).attr('href');
                 str.get_strings([
                         {key : 'addquestion', component : 'mod_recommend'},
                         {key : 'selectquestiontype', component : 'mod_recommend'},
                         {key : 'cancel'}
                     ]).done(function(s) {
-                        var el = $('<div><div id="mod_recommend_type_selector">'+
-                            '<p class="selecttype"></p>' +
-                            '<ul class="typeslist"></ul>'+
-                            '<p><input type="button" id="type_selector_cancel"/></p>' +
-                            '</div></div>');
+                        var el = $('<div><div id="mod_recommend_type_selector">'
+                            + '<p class="selecttype"></p>'
+                            + '<ul class="typeslist"></ul>'
+                            + '<p><input type="button" id="type_selector_cancel"/></p>'
+                            + '</div></div>');
                         el.find('.selecttype').html(s[1]);
                         el.find('#type_selector_cancel').attr('value', s[2]);
                         for (var type in types) {

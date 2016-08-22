@@ -70,6 +70,7 @@ $string['options_help'] = 'Specify one option per line, prefix each line with th
 $string['pluginadministration'] = 'Recommendation request administration';
 $string['pluginname'] = 'Recommendation request';
 $string['prefillwith'] = 'Prefill with:';
+$string['preview'] = 'Preview recommendation';
 $string['question'] = 'Question';
 $string['questiontype'] = 'Type';
 $string['recommend'] = 'recommend';

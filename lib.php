@@ -443,9 +443,6 @@ function recommend_comment_validate($commentparam) {
     if ($commentparam->commentarea != 'recommend_request') {
         throw new comment_exception('invalidcommentarea');
     }
-    //if ($commentparam->itemid != 0) {
-    //    throw new comment_exception('invalidcommentitemid');
-    //}
     return true;
 
 }
@@ -458,7 +455,6 @@ function recommend_comment_validate($commentparam) {
  */
 function recommend_comment_permissions($params) {
     global $DB, $CFG;
-    require_once($CFG->dirroot.'/mod/recommend/locallib.php');
     $canpost = false;
     $canview = false;
     $params = (array)$params;
@@ -475,10 +471,6 @@ function recommend_comment_permissions($params) {
     return array('post' => $canpost, 'view' => $canview);
 }
 
-//function recommend_comment_add(stdClass $comment, stdClass $param) {
-//
-//}
-
 /**
  * Validate comment data before displaying comments
  *
@@ -490,29 +482,13 @@ function recommend_comment_display($comment, $args) {
     if ($args->commentarea != 'recommend_request') {
         throw new comment_exception('invalidcommentarea');
     }
-    //if ($args->itemid != 0) {
-    //    throw new comment_exception('invalidcommentitemid');
-    //}
     return $comment;
 }
-
-/*function recommend_comment_template($options) {
-        $ret = <<<EOD
-<div class="comment-userpicture">___picture___</div>
-<div class="comment-content">
-    ___name___ - <span>___time___</span>
-    <div>___content___</div>
-</div>
-EOD;
-        return $ret;
-
-}*/
 
 /**
  * Obtains the automatic completion state for this choice based on any conditions
  * in forum settings.
  *
- * @global moodle_database $DB
  * @param stdClass $course Course
  * @param stdClass $cm Course-module
  * @param int $userid User ID
@@ -522,10 +498,10 @@ EOD;
 function recommend_get_completion_state($course, $cm, $userid, $type) {
     global $DB;
 
-    // Get recommend details
+    // Get recommend details.
     $recommend = $DB->get_record('recommend', array('id' => $cm->instance), '*', MUST_EXIST);
 
-    // If completion option is enabled, evaluate it and return true/false
+    // If completion option is enabled, evaluate it and return true/false.
     if ($recommend->requiredrecommend > 0) {
         $statuses = [mod_recommend_request_manager::STATUS_RECOMMENDATION_ACCEPTED];
         if (empty($recommend->completiononlyaccepted)) {
@@ -540,7 +516,7 @@ function recommend_get_completion_state($course, $cm, $userid, $type) {
                 $params);
         return $count >= $recommend->requiredrecommend;
     } else {
-        // Completion option is not enabled so just return $type
+        // Completion option is not enabled so just return $type.
         return $type;
     }
 }

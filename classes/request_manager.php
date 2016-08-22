@@ -34,16 +34,29 @@ defined('MOODLE_INTERNAL') || die();
 class mod_recommend_request_manager {
     /** @var cm_info */
     protected $cm;
+    /** @var stdClass */
     protected $object;
+    /** @var array */
     protected $requests;
 
+    /** Just created, will be sent by cron in 15 minutes */
     const STATUS_PENDING = 0;
+    /** Recommendation request was sent but not yet completed */
     const STATUS_REQUEST_SENT = 1;
+    /** Recommending person rejected the request (not currently used) */
     const STATUS_REQUEST_REJECTED = 2;
+    /** Recommending person completed the recommendation */
     const STATUS_RECOMMENDATION_COMPLETED = 3;
+    /** Recommendation was rejected by the teacher */
     const STATUS_RECOMMENDATION_REJECTED = 4;
+    /** Recommendation was accepted by the teacher */
     const STATUS_RECOMMENDATION_ACCEPTED = 5;
 
+    /**
+     * Constructor
+     * @param cm_info $cm
+     * @param stdClass $object
+     */
     public function __construct(cm_info $cm, $object = null) {
         global $DB;
         $this->cm = $cm;
@@ -57,17 +70,25 @@ class mod_recommend_request_manager {
     }
 
     /**
-     *
+     * Returns the course module
      * @return cm_info
      */
     public function get_cm() {
         return $this->cm;
     }
 
+    /**
+     * Returns the current user
+     * @return int
+     */
     public function get_userid() {
         return $this->cm->get_modinfo()->userid;
     }
 
+    /**
+     * Returns the list of requests for the current user
+     * @return array
+     */
     public function get_requests() {
         global $DB;
         if ($this->requests === null) {
@@ -90,6 +111,10 @@ class mod_recommend_request_manager {
         return max($canadd, 0);
     }
 
+    /**
+     * Adds requests
+     * @param stdClass $data data from form {@link mod_recommend_add_request_form}
+     */
     public function add_requests($data) {
         $canadd = $this->can_add_request();
         for ($i = 1; $i <= $canadd; $i++) {
@@ -109,6 +134,13 @@ class mod_recommend_request_manager {
         }
     }
 
+    /**
+     * Generates and returns a unique secret code
+     * @param int $userid
+     * @param string $email
+     * @param string $name
+     * @return string
+     */
     public static function generate_secret($userid, $email, $name) {
         global $DB;
         while (true) {
@@ -119,6 +151,12 @@ class mod_recommend_request_manager {
         }
     }
 
+    /**
+     * Adds a single request
+     * @param string $email
+     * @param string $name
+     * @return stdClass
+     */
     protected function add_request($email, $name) {
         global $DB;
         $this->get_requests();
@@ -139,7 +177,7 @@ class mod_recommend_request_manager {
     }
 
     /**
-     *
+     * Requests table for the current user
      * @return \html_table
      */
     public function get_requests_table() {
@@ -166,6 +204,11 @@ class mod_recommend_request_manager {
         return $table;
     }
 
+    /**
+     * Can the request be deleted
+     * @param int $requestid
+     * @return bool
+     */
     public function can_delete_request($requestid) {
         if (!has_capability('mod/recommend:request', $this->cm->context)) {
             return false;
@@ -177,6 +220,11 @@ class mod_recommend_request_manager {
         return $requests[$requestid]->status == self::STATUS_PENDING;
     }
 
+    /**
+     * Delete a request
+     * @param int $requestid
+     * @return bool
+     */
     public function delete_request($requestid) {
         global $DB;
         $requests = $this->get_requests();
@@ -190,29 +238,47 @@ class mod_recommend_request_manager {
         return true;
     }
 
+    /**
+     * Accept a request
+     *
+     * @param int $requestid
+     * @return bool
+     */
     public function accept_request($requestid) {
         return mod_recommend_recommendation::accept_request($this->cm,
                 $this->object, $requestid);
     }
 
+    /**
+     * Reject a request
+     *
+     * @param int $requestid
+     * @return bool
+     */
     public function reject_request($requestid) {
         return mod_recommend_recommendation::reject_request($this->cm,
                 $this->object, $requestid);
     }
 
+    /**
+     * Can $USER iew the request
+     * @return bool
+     */
     public function can_view_requests() {
         $caps = ['mod/recommend:viewdetails', 'mod/recommend:accept'];
         return has_any_capability($caps, $this->cm->context);
     }
 
+    /**
+     * Can $USER accept a request
+     * @return bool
+     */
     public function can_accept_requests() {
         return has_capability('mod/recommend:accept', $this->cm->context);
     }
 
     /**
-     *
-     * @global moodle_database $DB
-     * @global core_renderer $OUTPUT
+     * List of all requests
      * @return \html_table
      */
     public function get_all_requests_table() {
@@ -270,32 +336,17 @@ class mod_recommend_request_manager {
         return $table;
     }
 
-    /*
-    public static function update_completion() {
-        // Update completion state
-        $completion = new completion_info($this->cm->get_course());
-        if ($completion->is_enabled($this->cm) == COMPLETION_TRACKING_AUTOMATIC) {
-            $requests = $this->get_requests();
-            $count = 0;
-            foreach ($requests as $request) {
-                if ($request->status == self::STATUS_RECOMMENDATION_ACCEPTED) {
-                    $count++;
-                }
-            }
-            $completion->update_state($this->cm,
-                    ($count >= $this->object->requiredrecommend) ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE,
-                    $this->get_userid());
-        }
-    }
+    /**
+     * Sends the emails to all requests pending for over 15 minutes
+     * @return int nuber of emails sent
      */
-
     public static function email_scheduled() {
         global $DB;
-        $cooldowntimeout = 15 * MINSECS; // TODO setting
+        $cooldowntimeout = 15 * MINSECS; // TODO setting.
 
         $module = $DB->get_record('modules', ['name' => 'recommend', 'visible' => 1]);
         if (!$module) {
-            return;
+            return 0;
         }
 
         $userfields = user_picture::fields('u', null, 'userid');
@@ -316,7 +367,7 @@ class mod_recommend_request_manager {
                 [$module->id, CONTEXT_MODULE,
                     self::STATUS_PENDING, time() - $cooldowntimeout]);
         if (!$records) {
-            return;
+            return 0;
         }
 
         $site = get_site();

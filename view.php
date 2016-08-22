@@ -17,19 +17,13 @@
 /**
  * Prints a particular instance of recommend
  *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
- *
  * @package    mod_recommend
  * @copyright  2016 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Replace recommend with the name of your module and remove this line.
-
 require_once(__DIR__.'/../../config.php');
 require_once(__DIR__.'/lib.php');
-require_once(__DIR__.'/locallib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
@@ -122,6 +116,15 @@ echo $OUTPUT->heading(format_string($recommend->name));
 // Conditions to show the intro can change to look for own settings or whatever.
 if ($recommend->intro && !$action) {
     echo $OUTPUT->box(format_module_intro('recommend', $recommend, $cm->id), 'generalbox mod_introbox', 'recommendintro');
+}
+if (!$action) {
+    if (!has_capability('mod/recommend:editquestions', $PAGE->context)) {
+        $previewurl = new moodle_url('/mod/recommend/preview.php', ['id' => $cm->id]);
+        echo $OUTPUT->single_button($previewurl, get_string('preview', 'mod_recommend'), 'get');
+    } else {
+        $editurl = new moodle_url('/mod/recommend/edit.php', ['id' => $cm->id]);
+        echo $OUTPUT->single_button($editurl, get_string('editquestions', 'mod_recommend'), 'get');
+    }
 }
 
 if ($action === 'addrequest') {

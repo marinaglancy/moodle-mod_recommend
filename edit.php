@@ -26,7 +26,6 @@
 
 require_once(__DIR__.'/../../config.php');
 require_once(__DIR__.'/lib.php');
-require_once(__DIR__.'/locallib.php');
 require_once($CFG->libdir . '/completionlib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
@@ -97,7 +96,10 @@ if (isset($editform)) {
 } else {
     $form = new mod_recommend_recommend_form(['recommendation' => $questionmanager],
         mod_recommend_recommend_form::MODE_EDIT);
+    $viewurl = new moodle_url('/mod/recommend/view.php', ['id' => $cm->id]);
+    echo $OUTPUT->single_button($viewurl, get_string('back'), 'get');
     $form->display();
+    echo $OUTPUT->single_button($viewurl, get_string('back'), 'get');
 }
 
 echo $OUTPUT->footer();

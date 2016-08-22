@@ -80,6 +80,11 @@ class restore_recommend_activity_structure_step extends restore_activity_structu
         $this->apply_activity_instance($newitemid);
     }
 
+    /**
+     * Process the given restore path element data
+     *
+     * @param array $data parsed element data
+     */
     protected function process_recommend_question($data) {
         global $DB;
 
@@ -88,11 +93,16 @@ class restore_recommend_activity_structure_step extends restore_activity_structu
 
         $data->recommendid = $this->get_new_parentid('recommend');
 
-        // insert the entry record
+        // Insert the entry record.
         $newitemid = $DB->insert_record('recommend_question', $data);
         $this->set_mapping('recommend_question', $oldid, $newitemid);
     }
 
+    /**
+     * Process the given restore path element data
+     *
+     * @param array $data parsed element data
+     */
     protected function process_recommend_request($data) {
         global $DB;
 
@@ -105,7 +115,7 @@ class restore_recommend_activity_structure_step extends restore_activity_structu
         $data->timerequested = $this->apply_date_offset($data->timerequested);
         $data->timecompleted = $this->apply_date_offset($data->timecompleted);
 
-        // insert the entry record
+        // Insert the entry record.
         try {
             $newitemid = $DB->insert_record('recommend_request', $data);
         } catch (dml_exception $e) {
@@ -116,6 +126,11 @@ class restore_recommend_activity_structure_step extends restore_activity_structu
         $this->set_mapping('recommend_request', $oldid, $newitemid);
     }
 
+    /**
+     * Process the given restore path element data
+     *
+     * @param array $data parsed element data
+     */
     protected function process_recommend_reply($data) {
         global $DB;
 
@@ -126,7 +141,7 @@ class restore_recommend_activity_structure_step extends restore_activity_structu
         $data->requestid = $this->get_new_parentid('recommend_request');
         $data->questionid = $this->get_mappingid('recommend_question', $data->questionid);
 
-        // insert the entry record
+        // Insert the entry record.
         $newitemid = $DB->insert_record('recommend_reply', $data);
         $this->set_mapping('recommend_reply', $oldid, $newitemid);
     }

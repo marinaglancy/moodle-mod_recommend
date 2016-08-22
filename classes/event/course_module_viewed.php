@@ -46,6 +46,13 @@ class course_module_viewed extends \core\event\course_module_viewed {
         parent::init();
     }
 
+    /**
+     * Method for quick creating from object
+     * @param \cm_info $cm
+     * @param \stdClass $course
+     * @param \stdClass $recommend
+     * @return self
+     */
     public static function create_from_cm(\cm_info $cm, $course, $recommend) {
 
         $event = static::create(array(

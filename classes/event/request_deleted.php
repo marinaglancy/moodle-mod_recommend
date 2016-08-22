@@ -44,6 +44,12 @@ class request_deleted extends \core\event\base {
         $this->data['objecttable'] = 'recommend_request';
     }
 
+    /**
+     * Method for quick creating from object
+     * @param \cm_info $cm
+     * @param \stdClass $request
+     * @return self
+     */
     public static function create_from_request($cm, $request) {
         $event = static::create(array(
             'objectid' => $request->id,

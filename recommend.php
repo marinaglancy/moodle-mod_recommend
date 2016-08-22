@@ -25,7 +25,6 @@
 // Replace recommend with the name of your module and remove this line.
 
 require_once(__DIR__.'/../../config.php');
-require_once(__DIR__.'/locallib.php');
 
 $secret = required_param('s', PARAM_RAW);
 $recommendation = new mod_recommend_recommendation($secret);

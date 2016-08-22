@@ -39,16 +39,24 @@ class mod_recommend_recommend_form extends moodleform {
     /** @var int */
     protected $mode = 0;
 
+    /** Filling the recommendation form */
     const MODE_FILL = 0;
+    /** Reviewing the completed recommendation form */
     const MODE_REVIEW = 1;
+    /** Editing questions for the recommendation form */
     const MODE_EDIT = 2;
+    /** Previewing the questions in the recommendation form */
     const MODE_PREVIEW = 3;
 
-    function __construct($customdata = null, $mode = 0) {
+    /**
+     * Constructor
+     * @param array $customdata
+     * @param int $mode
+     */
+    public function __construct($customdata = null, $mode = 0) {
         global $PAGE;
         $attributes = ['class' => 'mod-recommend-recommendation'];
         if ($mode == self::MODE_EDIT) {
-            // TODO disable form leave warning.
             $attributes['class'] .= ' editing';
             $PAGE->requires->js_call_amd('mod_recommend/edit', 'setup',
                 ['types' => mod_recommend_questions_manager::get_types()]);
@@ -57,11 +65,13 @@ class mod_recommend_recommend_form extends moodleform {
         parent::__construct(null, $customdata, 'post', '', $attributes);
     }
 
+    /**
+     * Form definition
+     */
     public function definition() {
 
         $mform = $this->_form;
 
-        /** @var mod_recommend_recommendation */
         $recommendation = $this->_customdata['recommendation'];
         $data = isset($this->_customdata['data']) ? $this->_customdata['data'] : [];
 
@@ -85,6 +95,14 @@ class mod_recommend_recommend_form extends moodleform {
         }
     }
 
+    /**
+     * Form validation
+     *
+     * @param array $data array of ("fieldname"=>value) of submitted data
+     * @param array $files array of uploaded files "element_name"=>tmp_file_path
+     * @return array of "element_name"=>"error_description" if there are errors,
+     *         or an empty array if everything is OK (true allowed for backwards compatibility too).
+     */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $recommendation = $this->_customdata['recommendation'];
@@ -99,12 +117,5 @@ class mod_recommend_recommend_form extends moodleform {
         }
 
         return $errors;
-    }
-
-    public function display() {
-        global $PAGE;
-        if ($this->mode == self::MODE_EDIT) {
-        }
-        parent::display();
     }
 }

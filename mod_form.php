@@ -103,7 +103,16 @@ class mod_recommend_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
-    function add_completion_rules() {
+    /**
+     * Can be overridden to add custom completion rules if the module wishes
+     * them. If overriding this, you should also override completion_rule_enabled.
+     * <p>
+     * Just add elements to the form as needed and return the list of IDs. The
+     * system will call disabledIf and handle other behaviour for each returned
+     * ID.
+     * @return array Array of string IDs of added items, empty array if none
+     */
+    public function add_completion_rules() {
         $mform = $this->_form;
 
         $group = array();
@@ -117,17 +126,32 @@ class mod_recommend_mod_form extends moodleform_mod {
         $mform->addHelpButton('requiredrecommendgroup', 'requiredrecommendgroup', 'recommend');
         $mform->disabledIf('requiredrecommend', 'completionrequired', 'notchecked');
         $mform->setType('requiredrecommend', PARAM_INT);
-        //$mform->addRule('requiredrecommend', null, 'numeric', null, 'client');
         $mform->setDefault('requiredrecommend', 1);
         $mform->disabledIf('completiononlyaccepted', 'completionrequired', 'notchecked');
 
         return array('requiredrecommendgroup');
     }
 
-    function completion_rule_enabled($data) {
+    /**
+     * Called during validation. Override to indicate, based on the data, whether
+     * a custom completion rule is enabled (selected).
+     *
+     * @param array $data Input data (not yet validated)
+     * @return bool True if one or more rules is enabled, false if none are;
+     *   default returns false
+     */
+    public function completion_rule_enabled($data) {
         return !empty($data['completionrequired']) && $data['requiredrecommend'] > 0;
     }
 
+    /**
+     * Return submitted data if properly submitted or returns NULL if validation fails or
+     * if there is no submitted data.
+     *
+     * note: $slashed param removed
+     *
+     * @return object submitted data; NULL if not valid or not submitted or cancelled
+     */
     public function get_data() {
         $data = parent::get_data();
         if (!$data) {
@@ -152,7 +176,6 @@ class mod_recommend_mod_form extends moodleform_mod {
      **/
     public function data_preprocessing(&$defaultvalues) {
         // Set up the completion checkbox which is not part of standard data.
-        $defaultvalues['completionrequired'] =
-            !empty($defaultvalues['requiredrecommend']) ? 1 : 0;
+        $defaultvalues['completionrequired'] = !empty($defaultvalues['requiredrecommend']) ? 1 : 0;
     }
 }

@@ -64,7 +64,7 @@ class behat_mod_recommend extends behat_base {
     }
 
     /**
-     *
+     * Open a recommendation without login
      * @param string $name the name or email of the person who received recommendation request
      *
      * @Given /^I open the recommendation as "([^"]*)"$/
