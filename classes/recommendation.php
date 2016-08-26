@@ -163,7 +163,7 @@ class mod_recommend_recommendation {
         $this->request->timecompleted = $now;
         \mod_recommend\event\request_completed::create_from_request($this->cm, $this->request)->trigger();
         self::update_completion($this->cm, $this->recommend, $this->request->userid);
-        // TODO send email(s).
+        self::notify($this->request, $this->cm);
     }
 
     /**
@@ -284,6 +284,7 @@ class mod_recommend_recommendation {
         $request->status = mod_recommend_request_manager::STATUS_RECOMMENDATION_ACCEPTED;
         \mod_recommend\event\request_accepted::create_from_request($cm, $request)->trigger();
         self::update_completion($cm, $recommend, $request->userid);
+        self::notify($request, $cm);
         return true;
     }
 
@@ -304,6 +305,97 @@ class mod_recommend_recommendation {
         $request->status = mod_recommend_request_manager::STATUS_RECOMMENDATION_REJECTED;
         \mod_recommend\event\request_rejected::create_from_request($cm, $request)->trigger();
         self::update_completion($cm, $recommend, $request->userid);
+        self::notify($request, $cm);
         return true;
+    }
+
+    /**
+     * Notify student/teachers about the request status change.
+     *
+     * @param stdClass $request
+     * @param cm_info $cm course module, note that it may be initialised for the current
+     *     user instead of affected user. Do not call uservisible!
+     */
+    public static function notify($request, $cm) {
+
+        $context = $cm->context;
+        $contextname = $cm->get_formatted_name();
+        $course = $cm->get_course();
+        $formatoptions = ['context' => $context->get_course_context()];
+        $site = get_site();
+
+        $user = core_user::get_user($request->userid);
+        $a = (object)array(
+            'name' => $request->name,
+            'email' => $request->email,
+            'participant' => fullname($user),
+            'recipient' => fullname($user),
+            'status' => get_string('status' . $request->status, 'mod_recommend'),
+            'modulename' => $contextname,
+            'courseshortname' => format_string($course->shortname, true, $formatoptions),
+            'coursefullname' => format_string($course->fullname, true, $formatoptions),
+            'site' => format_string($site->fullname, true, ['context' => context_system::instance()]),
+            'admin' => generate_email_signoff(),
+            'link' => $cm->url->out(false),
+        );
+
+        // Send notification to student that status has changed.
+        $subject = get_string('notificationstatuschanged_subject', 'mod_recommend', $a);
+        $message = text_to_html(get_string('notificationstatuschanged_body', 'mod_recommend', $a), null, false);
+        $smallmessage = get_string('notificationstatuschanged_short', 'mod_recommend', $a);
+
+        $eventdata = new \core\message\message();
+        $eventdata->component           = 'mod_recommend';
+        $eventdata->name                = 'statuschanged';
+        $eventdata->userfrom            = core_user::get_noreply_user();
+        $eventdata->userto              = $user;
+        $eventdata->subject             = $subject;
+        $eventdata->fullmessage         = $message;
+        $eventdata->fullmessageformat   = FORMAT_HTML;
+        $eventdata->fullmessagehtml     = $message;
+        $eventdata->notification        = 1;
+        $eventdata->smallmessage        = $smallmessage;
+        $eventdata->contexturl          = $cm->url->out(false);
+        $eventdata->contexturlname      = $contextname;
+        $mailresult = message_send($eventdata);
+
+        // Send notification to teachers about completed recommendation.
+
+        if ($request->status != mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED) {
+            // Teachers only need notification when recommendation is completed.
+            return;
+        }
+
+        $recipients = get_enrolled_users($context, 'mod/recommend:accept');
+        if (!$recipients) {
+            return;
+        }
+
+        $viewurl = new moodle_url('/mod/recommend/view.php', ['id' => $cm->id,
+            'requestid' => $request->id, 'action' => 'viewrequest']);
+        $a->link = $viewurl->out(false);
+
+        foreach ($recipients as $recipient) {
+            $a->recipient = fullname($recipient);
+
+            $subject = get_string('notificationcompleted_subject', 'mod_recommend', $a);
+            $message = text_to_html(get_string('notificationcompleted_body', 'mod_recommend', $a), null, false);
+            $smallmessage = get_string('notificationcompleted_short', 'mod_recommend', $a);
+
+            $eventdata = new \core\message\message();
+            $eventdata->component           = 'mod_recommend';
+            $eventdata->name                = 'completed';
+            $eventdata->userfrom            = core_user::get_noreply_user();
+            $eventdata->userto              = $recipient;
+            $eventdata->subject             = $subject;
+            $eventdata->fullmessage         = $message;
+            $eventdata->fullmessageformat   = FORMAT_HTML;
+            $eventdata->fullmessagehtml     = $message;
+            $eventdata->notification        = 1;
+            $eventdata->smallmessage        = $smallmessage;
+            $eventdata->contexturl          = $viewurl->out(false);
+            $eventdata->contexturlname      = $contextname;
+            $mailresult = message_send($eventdata);
+        }
     }
 }

@@ -15,22 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version and other meta-info about the plugin
- *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
+ * Defines message providers (types of messages being sent)
  *
  * @package    mod_recommend
- * @copyright  2016 Marina Glancy <your@email.address>
+ * @copyright  2016 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+$messageproviders = array (
 
-$plugin->component = 'mod_recommend';
-$plugin->version = 2016082601;
-$plugin->release = 'v1.0';
-$plugin->requires = 2014051200;
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->cron = 0;
-$plugin->dependencies = array();
+    // Recommendation status changed (notification for students).
+    'statuschanged' => [],
+    // New recommendation (notification of completion for teachers).
+    'completed' => [],
+
+);

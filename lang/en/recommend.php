@@ -64,10 +64,42 @@ $string['maxrequests_help'] = 'Maximum number of requests a participant is allow
         . 'However different circumstances may prevent recommending person from filling out '
         . 'the form and participant should be allowed to send more requests than the required '
         . 'number of recommendations';
+$string['messageprovider:completed'] = 'Completed recommendation notification for graders';
+$string['messageprovider:statuschanged'] = 'Recommendation request status change notification';
 $string['modulename'] = 'Recommendation request';
 $string['modulename_help'] = 'Use the Recommendation request module to allow users to request recommendations from anybody including people who are not registered in Moodle';
 $string['modulenameplural'] = 'Recommendation requests';
 $string['norequests'] = 'No recommendation requests created';
+$string['notificationcompleted_body'] = 'Dear {$a->recipient},
+
+New recommendation was completed on {$a->site} and is now waiting to be accepted.
+
+Participant: {$a->participant}
+Name of the recommending person: {$a->name}
+
+To view recommendation follow the link:
+{$a->link}
+
+If you need help, please contact the site administrator,
+{$a->admin}
+';
+$string['notificationcompleted_short'] = 'New recommendation';
+$string['notificationcompleted_subject'] = '{$a->courseshortname}: {$a->modulename}: New recommendation';
+$string['notificationstatuschanged_body'] = 'Dear {$a->recipient},
+
+This is to notify you about the change in the status of the recommendation you requested.
+Name of the recommending person: {$a->name}
+E-mail: {$a->email}
+New status: <b>{$a->status}</b>
+
+To view all your recommendation requests follow the link:
+{$a->link}
+
+If you need help, please contact the site administrator,
+{$a->admin}
+';
+$string['notificationstatuschanged_short'] = '{$a->courseshortname}: {$a->modulename}: Your recommendation request status has changed';
+$string['notificationstatuschanged_subject'] = 'Your recommendation request status has changed';
 $string['options'] = 'Options';
 $string['options_help'] = 'Specify one option per line, prefix each line with the weight and / sign, for example:<br><pre>1/Bad<br>3/Good<br>5/Excellent</pre>';
 $string['pluginadministration'] = 'Recommendation request administration';

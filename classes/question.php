@@ -207,9 +207,9 @@ class mod_recommend_question {
      * @param stdClass $data
      */
     public static function add_edit_elements(MoodleQuickForm $mform, $data) {
-        $editoroptions = self::editor_options($data);
+        $editoroptions = mod_recommend_questions_manager::editor_options($data);
 
-        $types = self::get_types();
+        $types = mod_recommend_questions_manager::get_types();
         $mform->addElement('select', 'type', get_string('questiontype', 'mod_recommend'), $types);
         $mform->freeze('type');
 

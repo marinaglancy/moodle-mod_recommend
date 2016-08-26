@@ -384,7 +384,7 @@ class mod_recommend_request_manager {
         $userfields = user_picture::fields('u', null, 'userid');
         $contextfields = context_helper::get_preload_record_columns_sql('ctx');
         $records = $DB->get_records_sql("
-                SELECT r.id, r.name, r.email, r.secret,
+                SELECT r.id, r.recommendid, r.name, r.email, r.status, r.secret, m.course,
                     m.requesttemplatesubject AS subject,
                     m.requesttemplatebody AS body,
                     m.requesttemplatebodyformat AS bodyformat,
@@ -395,7 +395,8 @@ class mod_recommend_request_manager {
                 JOIN {recommend} m ON m.id = r.recommendid
                 JOIN {course_modules} cm ON cm.instance = m.id AND cm.module = ?
                 JOIN {context} ctx ON ctx.contextlevel = ? AND ctx.instanceid = cm.id
-                WHERE r.status = ? AND r.timerequested < ?",
+                WHERE r.status = ? AND r.timerequested < ?
+                ORDER BY m.course, cm.id",
                 [$module->id, CONTEXT_MODULE,
                     self::STATUS_PENDING, time() - $cooldowntimeout]);
         if (!$records) {
@@ -436,6 +437,11 @@ class mod_recommend_request_manager {
             // TODO analyse if email failed?
             $DB->update_record('recommend_request',
                 ['id' => $record->id, 'status' => self::STATUS_REQUEST_SENT]);
+
+            // Notify students that request was sent.
+            $record->status = self::STATUS_REQUEST_SENT;
+            $modinfo = get_fast_modinfo($record->course);
+            mod_recommend_recommendation::notify($record, $modinfo->cms[$record->cmid]);
         }
 
         return count($records);

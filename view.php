@@ -52,6 +52,8 @@ if (class_exists('core\output\notification')) {
     $statuserror = \core\output\notification::NOTIFY_ERROR;
 }
 
+$title = $cm->get_formatted_name();
+
 if ($action === null) {
     \mod_recommend\event\course_module_viewed::create_from_cm($cm, $course, $recommend)->trigger();
     $completion = new completion_info($course);
@@ -62,9 +64,12 @@ if ($action === null) {
         redirect($viewurl);
     } else if ($data = $form->get_data()) {
         $manager->add_requests($data);
-        \core\notification::add(get_string('requestscreated', 'mod_recommend'));
+        \core\notification::add(get_string('requestscreated', 'mod_recommend'),
+                core\output\notification::NOTIFY_SUCCESS);
         redirect($viewurl);
     }
+    $title = get_string('addrequest', 'mod_recommend');
+    $PAGE->navbar->add($title);
 } else if ($action === 'deleterequest' && $requestid) {
     $message = '';
     $status = $statussuccess;
@@ -94,6 +99,12 @@ if ($action === null) {
     }
     redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']),
             $message, 3, $statussuccess);
+} else if ($action === 'viewrequest' && $requestid && $manager->can_view_requests()) {
+    $request = new mod_recommend_recommendation(null, $requestid);
+    $title = $request->get_title();
+    $PAGE->navbar->add($title);
+} else if ($action) {
+    redirect($viewurl);
 }
 
 // Print the page header.
@@ -112,7 +123,7 @@ $PAGE->set_heading(format_string($course->fullname));
 // Output starts here.
 echo $OUTPUT->header();
 
-echo $OUTPUT->heading(format_string($recommend->name));
+echo $OUTPUT->heading($title);
 
 // Conditions to show the intro can change to look for own settings or whatever.
 if ($recommend->intro && !$action) {
@@ -131,10 +142,7 @@ if (!$action) {
 if ($action === 'addrequest') {
     $form->display();
 } else if ($action === 'viewrequest') {
-    if ($manager->can_view_requests()) {
-        $request = new mod_recommend_recommendation(null, $requestid);
-        $request->show_request($requestid);
-    }
+    $request->show_request($requestid);
 } else {
     if ($table = $manager->get_requests_table()) {
         echo $OUTPUT->heading(get_string('yourrecommendations', 'mod_recommend'), 3);
