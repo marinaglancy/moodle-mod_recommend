@@ -43,8 +43,8 @@ class mod_recommend_request_manager {
     const STATUS_PENDING = 0;
     /** Recommendation request was sent but not yet completed */
     const STATUS_REQUEST_SENT = 1;
-    /** Recommending person rejected the request (not currently used) */
-    const STATUS_REQUEST_REJECTED = 2;
+    /** Recommending person declined the request (not currently used) */
+    const STATUS_RECOMMENDATION_DECLINED = 2;
     /** Recommending person completed the recommendation */
     const STATUS_RECOMMENDATION_COMPLETED = 3;
     /** Recommendation was rejected by the teacher */
@@ -187,6 +187,8 @@ class mod_recommend_request_manager {
             return null;
         }
         $table = new html_table();
+        $table->attributes['class'] = 'generaltable recommend-requests';
+        $canviewrequests = $this->can_view_requests();
         foreach ($requests as $request) {
             $status = $OUTPUT->pix_icon('status'.$request->status,
                     '', 'mod_recommend');
@@ -198,10 +200,31 @@ class mod_recommend_request_manager {
                 $status .= '<br>'.html_writer::link($deleteurl, get_string('delete'),
                         ['class' => 'deleterequest']);
             }
-            $cells = [$request->name, $request->email, $status];
+            $name = $request->name;
+            if ($canviewrequests && $request->status >= self::STATUS_RECOMMENDATION_COMPLETED) {
+                $url = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
+                        'requestid' => $request->id, 'action' => 'viewrequest']);
+                $status = html_writer::link($url, $status);
+                $name = html_writer::link($url, $name);
+            }
+            $cells = [$name, $request->email, $status];
             $table->data[] = new html_table_row($cells);
         }
         return $table;
+    }
+
+    /**
+     * Requests summary for the current user
+     * @return array
+     */
+    public function get_requests_by_status() {
+        $summary = [];
+        $requests = $this->get_requests();
+        foreach ($requests as $request) {
+            $summary += [$request->status => 0];
+            $summary[$request->status]++;
+        }
+        return $summary;
     }
 
     /**
@@ -210,6 +233,11 @@ class mod_recommend_request_manager {
      * @return bool
      */
     public function can_delete_request($requestid) {
+        if (has_capability('mod/recommend:delete', $this->cm->context)) {
+            // Can delete any request.
+            return true;
+        }
+        // Check if it is the request for the current user and it is in pending status.
         if (!has_capability('mod/recommend:request', $this->cm->context)) {
             return false;
         }
@@ -229,7 +257,10 @@ class mod_recommend_request_manager {
         global $DB;
         $requests = $this->get_requests();
         if (!isset($requests[$requestid])) {
-            return false;
+            if (!$requests = $DB->get_records('recommend_request',
+                ['id' => $requestid, 'recommendid' => $this->object->id])) {
+                return false;
+            }
         }
         $DB->delete_records('recommend_reply', ['requestid' => $requestid]);
         $DB->delete_records('recommend_request', ['id' => $requestid]);
@@ -318,6 +349,7 @@ class mod_recommend_request_manager {
         });
 
         $table = new html_table();
+        $table->attributes['class'] = 'generaltable recommend-requests-all';
         foreach ($data as $userdata) {
             $cells = [$userdata['fullname']];
             foreach ($userdata['requests'] as $request) {

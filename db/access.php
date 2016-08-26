@@ -69,23 +69,33 @@ $capabilities = array(
     ),
 
     'mod/recommend:viewdetails' => array(
+        'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW
         ),
-        'clonepermissionsfrom' => 'moodle/course:manageactivities',
+    ),
+
+    'mod/recommend:delete' => array(
+        'riskbitmask' => RISK_DATALOSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        ),
     ),
 
     'mod/recommend:accept' => array(
-        'captype' => 'read',
+        'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW
         ),
-        'clonepermissionsfrom' => 'moodle/course:manageactivities',
     ),
 
     'mod/recommend:editquestions' => array(

@@ -157,10 +157,17 @@ function recommend_delete_instance($id) {
  * @return stdClass|null
  */
 function recommend_user_outline($course, $user, $mod, $recommend) {
-
-    $return = new stdClass();
-    $return->time = 0;
-    $return->info = '';
+    $return = (object)['time' => 0, 'info' => ''];
+    $cm = cm_info::create($mod, $user->id);
+    $manager = new mod_recommend_request_manager($cm, $recommend);
+    if ($requests = $manager->get_requests_by_status()) {
+        foreach ($requests as $status => $cnt) {
+            $requests[$status] = get_string('status'.$status, 'mod_recommend').': '.$cnt;
+        }
+        $return->info = join('. ', $requests);
+    } else if (has_capability('mod/recommend:request', $cm->context, $user)) {
+        $return->info = get_string('norequests', 'mod_recommend');
+    }
     return $return;
 }
 
@@ -176,6 +183,14 @@ function recommend_user_outline($course, $user, $mod, $recommend) {
  * @param stdClass $recommend the module instance record
  */
 function recommend_user_complete($course, $user, $mod, $recommend) {
+    $cm = cm_info::create($mod, $user->id);
+    $manager = new mod_recommend_request_manager($cm, $recommend);
+    if ($table = $manager->get_requests_table()) {
+        echo html_writer::table($table);
+    } else if (has_capability('mod/recommend:request', $cm->context, $user)) {
+        echo html_writer::div(get_string('norequests', 'mod_recommend'),
+                'recommend-complete');
+    }
 }
 
 /**

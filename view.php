@@ -70,8 +70,9 @@ if ($action === null) {
     $status = $statussuccess;
     if ($manager->can_delete_request($requestid)) {
         require_sesskey();
-        $manager->delete_request($requestid);
-        $message = get_string('requestdeleted', 'mod_recommend');
+        if ($manager->delete_request($requestid)) {
+            $message = get_string('requestdeleted', 'mod_recommend');
+        }
     } else {
         $message = get_string('error_cannotdeleterequest', 'mod_recommend');
         $status = $statuserror;

@@ -190,7 +190,6 @@ class mod_recommend_recommendation {
         $replies = $DB->get_records('recommend_reply', ['requestid' => $this->request->id]);
         if ($replies) {
             echo '<hr>';
-            $questions = $this->get_questions();
             $data = [];
             foreach ($replies as $reply) {
                 $data['question'.$reply->questionid] = $reply->reply;
@@ -202,13 +201,23 @@ class mod_recommend_recommendation {
 
             if ($this->request->status == mod_recommend_request_manager::STATUS_RECOMMENDATION_COMPLETED &&
                     has_capability('mod/recommend:accept', $this->cm->context)) {
-                echo '<hr>';
                 $urlaccept = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
                     'action' => 'acceptrequest', 'requestid' => $this->request->id, 'sesskey' => sesskey()]);
                 $urlreject = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
                     'action' => 'rejectrequest', 'requestid' => $this->request->id, 'sesskey' => sesskey()]);
-                echo '<p>'.html_writer::link($urlaccept, get_string('acceptrecommendation', 'mod_recommend')).'<br>';
-                echo html_writer::link($urlreject, get_string('rejectrecommendation', 'mod_recommend')).'</p>';
+                $rejectbutton = new single_button($urlreject, get_string('rejectrecommendation', 'mod_recommend'));
+                $rejectbutton->add_confirm_action(get_string('areyousure_reject_recommendation', 'mod_recommend'));
+                echo '<hr>' . html_writer::div(
+                        $OUTPUT->single_button($urlaccept, get_string('acceptrecommendation', 'mod_recommend')) .
+                        $OUTPUT->render($rejectbutton));
+            }
+
+            if (has_capability('mod/recommend:delete', $this->cm->context)) {
+                $urldelete = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
+                    'action' => 'deleterequest', 'requestid' => $this->request->id, 'sesskey' => sesskey()]);
+                $button = new single_button($urldelete, get_string('delete'));
+                $button->add_confirm_action(get_string('areyousure_delete_request', 'mod_recommend'));
+                echo '<hr>' . html_writer::div($OUTPUT->render($button), 'delete');
             }
         }
 
