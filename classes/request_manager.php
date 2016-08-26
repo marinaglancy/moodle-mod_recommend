@@ -351,7 +351,11 @@ class mod_recommend_request_manager {
         $table = new html_table();
         $table->attributes['class'] = 'generaltable recommend-requests-all';
         foreach ($data as $userdata) {
-            $cells = [$userdata['fullname']];
+            $profilelink = new moodle_url('/user/view.php',
+                ['id' => $userdata['user']->id, 'course' => $this->cm->course]);
+            $userpic = $OUTPUT->user_picture($userdata['user'],
+                ['courseid' => $this->cm->course, 'class' => 'profilepicture', 'size' => 35]);
+            $cells = [$userpic . $OUTPUT->spacer(['width' => 5]) . $userdata['fullname']];
             foreach ($userdata['requests'] as $request) {
                 $url = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
                         'requestid' => $request->id, 'action' => 'viewrequest']);
@@ -414,7 +418,6 @@ class mod_recommend_request_manager {
             $context = context_module::instance($record->cmid);
             $user = user_picture::unalias($record, null, 'userid');
             $link = new moodle_url('/mod/recommend/recommend.php', ['s' => $record->secret]);
-            // TODO lang?
             $options = ['context' => $context];
             $replacements = [
                 '{PARTICIPANT}' => fullname($user, true),

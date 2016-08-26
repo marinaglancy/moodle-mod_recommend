@@ -224,7 +224,7 @@ class mod_recommend_question {
 
         if ($data->type === 'radio') {
             $mform->addElement('textarea', 'addinfo', get_string('options', 'mod_recommend'));
-            $mform->addHelpButton('addinfo', 'options');
+            $mform->addHelpButton('addinfo', 'options', 'mod_recommend');
         }
         if ($data->type === 'textfield') {
             $prefill = [
