@@ -95,9 +95,8 @@ class mod_recommend_question {
             } else if ($mode == mod_recommend_recommend_form::MODE_REVIEW) {
                 $mform->addElement('static', $elementlabel, $qtext); // TODO css class.
             } else {
-                $mform->addElement('textarea', $elementlabel, $qtext, 
+                $mform->addElement('textarea', $elementlabel, $qtext,
                     ['rows' => 5, 'cols' => 80, 'disabled' => 1]);
-                //$mform->freeze($elementlabel);
                 $mform->setType($elementlabel, PARAM_RAW);
             }
         } else if ($question->type === 'textfield') {
@@ -108,7 +107,7 @@ class mod_recommend_question {
                 // TODO add some CSS class maybe so it is displayed with a border.
                 $mform->addElement('static', $elementlabel, $qtext);
             } else {
-                $mform->addElement('text', $elementlabel, $qtext, 
+                $mform->addElement('text', $elementlabel, $qtext,
                     ['size' => 50, 'disabled' => 1] + $attrs);
                 $mform->setType($elementlabel, PARAM_NOTAGS);
             }

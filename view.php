@@ -45,13 +45,6 @@ $recommend = $PAGE->activityrecord;
 $manager = new mod_recommend_request_manager($cm, $recommend);
 $viewurl = new moodle_url('/mod/recommend/view.php', ['id' => $cm->id]);
 
-$statussuccess = $statuserror = null;
-if (class_exists('core\output\notification')) {
-    // Notification status will not work in Moodle 2.7.
-    $statussuccess = \core\output\notification::NOTIFY_SUCCESS;
-    $statuserror = \core\output\notification::NOTIFY_ERROR;
-}
-
 $title = $cm->get_formatted_name();
 
 if ($action === null) {
@@ -72,7 +65,7 @@ if ($action === null) {
     $PAGE->navbar->add($title);
 } else if ($action === 'deleterequest' && $requestid) {
     $message = '';
-    $status = $statussuccess;
+    $status = \core\output\notification::NOTIFY_SUCCESS;
     if ($manager->can_delete_request($requestid)) {
         require_sesskey();
         if ($manager->delete_request($requestid)) {
@@ -80,7 +73,7 @@ if ($action === null) {
         }
     } else {
         $message = get_string('error_cannotdeleterequest', 'mod_recommend');
-        $status = $statuserror;
+        $status = \core\output\notification::NOTIFY_ERROR;
     }
     redirect($viewurl, $message, 3, $status);
 } else if ($action === 'acceptrequest' && $requestid &&
@@ -90,7 +83,7 @@ if ($action === null) {
         $message = get_string('recommendationaccepted', 'mod_recommend');
     }
     redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']),
-            $message, 3, $statussuccess);
+            $message, 3, \core\output\notification::NOTIFY_SUCCESS);
 } else if ($action === 'rejectrequest' && $requestid &&
         $manager->can_accept_requests() && confirm_sesskey()) {
     $message = '';
@@ -98,7 +91,7 @@ if ($action === null) {
         $message = get_string('recommendationrejected', 'mod_recommend');
     }
     redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']),
-            $message, 3, $statussuccess);
+            $message, 3, \core\output\notification::NOTIFY_SUCCESS);
 } else if ($action === 'viewrequest' && $requestid && $manager->can_view_requests()) {
     $request = new mod_recommend_recommendation(null, $requestid);
     $title = $request->get_title();
