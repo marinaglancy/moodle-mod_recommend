@@ -58,12 +58,12 @@ $string['eventrequestdeleted'] = 'Recommendation request deleted';
 $string['eventrequestrejected'] = 'Recommendation rejected';
 $string['labelcontents'] = 'Contents';
 $string['maxrequests'] = 'Maximum requests allowed';
-$string['maxrequests_help'] = 'Maximum number of requests a participant is allowed to send. '
-        . 'It is reasonable to set this value low to encourage participants to pre-confirm with '
-        . 'the recommending person and prevent them from bulk sending large number of requests. '
-        . 'However different circumstances may prevent recommending person from filling out '
-        . 'the form and participant should be allowed to send more requests than the required '
-        . 'number of recommendations';
+$string['maxrequests_help'] = 'Maximum number of requests a participant is allowed to send.
+ It is reasonable to set this value low to encourage participants to pre-confirm with
+ the recommending person and prevent them from bulk sending large number of requests.
+ However different circumstances may prevent recommending person from filling out
+ the form and participant should be allowed to send more requests than the required
+ number of recommendations';
 $string['messageprovider:completed'] = 'Completed recommendation notification for graders';
 $string['messageprovider:statuschanged'] = 'Recommendation request status change notification';
 $string['modulename'] = 'Recommendation request';
