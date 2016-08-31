@@ -89,7 +89,7 @@ class mod_recommend_question {
         if ($question->type === 'label') {
             $mform->addElement('static', $label, '', $qtext);
         } else if ($question->type === 'textarea') {
-            $options = ['enable_filemanagement' => false, 'maxfiles' => 0];
+            $options = ['enable_filemanagement' => false, 'maxfiles' => 0, 'autosave' => false];
             if ($mode == mod_recommend_recommend_form::MODE_FILL) {
                 $mform->addElement('editor', $elementlabel, $qtext, null, $options);
             } else if ($mode == mod_recommend_recommend_form::MODE_REVIEW) {

@@ -50,8 +50,12 @@ class mod_recommend_add_request_form extends moodleform {
         $mform->addElement('hidden', 'id', $manager->get_cm()->id);
         $mform->setType('id', PARAM_INT);
 
-        $mform->addElement('static', 'instructions', '',
-                get_string('requestinstructions', 'recommend', $canadd));
+        $instructions = get_string('requestinstructions', 'recommend', $canadd);
+        if ($canadd > 1) {
+            $instructions .= '<br>'.get_string('requestinstructionsmult', 'recommend');
+        }
+
+        $mform->addElement('static', 'instructions', '', $instructions);
 
         for ($i = 1; $i <= $canadd; $i++) {
             $mform->addElement('header', 'recommend'.$i, get_string('recommendationtitle', 'mod_recommend', $i));

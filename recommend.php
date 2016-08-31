@@ -34,7 +34,7 @@ $baseurl = new moodle_url('/mod/recommend/recommend.php', ['s' => $secret]);
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url($baseurl);
 $PAGE->set_title($recommendation->get_title());
-$PAGE->set_heading($recommendation->get_title());
+$PAGE->navbar->add($recommendation->get_title());
 
 $form = new mod_recommend_recommend_form(['recommendation' => $recommendation]);
 if ($data = $form->get_data()) {
@@ -51,5 +51,6 @@ if ($data = $form->get_data()) {
 }
 
 echo $OUTPUT->header();
+echo $OUTPUT->heading($recommendation->get_title());
 $form->display();
 echo $OUTPUT->footer();

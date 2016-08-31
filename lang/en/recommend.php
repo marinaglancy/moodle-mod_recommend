@@ -38,7 +38,6 @@ $string['completiononlyaccepted'] = 'Count only accepted recommendations';
 $string['completionrequired'] = 'Minimum number of completed recommendations: ';
 $string['editquestion'] = 'Edit question';
 $string['editquestions'] = 'Edit questions';
-$string['email_request_subject'] = '';
 $string['error_cannotdeleterequest'] = 'Sorry, this request can not be deleted';
 $string['error_emailduplicated'] = 'Duplicate e-mail address';
 $string['error_emailmissing'] = 'E-mail for this recommendation is not specified';
@@ -67,7 +66,7 @@ $string['maxrequests_help'] = 'Maximum number of requests a participant is allow
 $string['messageprovider:completed'] = 'Completed recommendation notification for graders';
 $string['messageprovider:statuschanged'] = 'Recommendation request status change notification';
 $string['modulename'] = 'Recommendation request';
-$string['modulename_help'] = 'Use the Recommendation request module to allow users to request recommendations from anybody including people who are not registered in Moodle';
+$string['modulename_help'] = 'This module allows participants to request recommendations. Recommending person does not need to register on the site. The grader is able to view recommendations, accept or decline them.';
 $string['modulenameplural'] = 'Recommendation requests';
 $string['norequests'] = 'No recommendation requests created';
 $string['notificationcompleted_body'] = 'Dear {$a->recipient},
@@ -101,14 +100,13 @@ If you need help, please contact the site administrator,
 $string['notificationstatuschanged_short'] = '{$a->courseshortname}: {$a->modulename}: Your recommendation request status has changed';
 $string['notificationstatuschanged_subject'] = 'Your recommendation request status has changed';
 $string['options'] = 'Options';
-$string['options_help'] = 'Specify one option per line, prefix each line with the weight and / sign, for example:<br><pre>1/Bad<br>3/Good<br>5/Excellent</pre>';
+$string['options_help'] = 'Specify one option per line, prefix each line with the weight and / sign. All weights must be different, for example:<br><pre>1/Bad<br>3/Good<br>5/Excellent</pre>';
 $string['pluginadministration'] = 'Recommendation request administration';
 $string['pluginname'] = 'Recommendation request';
 $string['prefillwith'] = 'Prefill with:';
 $string['preview'] = 'Preview recommendation';
 $string['question'] = 'Question';
 $string['questiontype'] = 'Type';
-$string['recommend'] = 'recommend';
 $string['recommend:accept'] = 'Accept and reject completed recommendations';
 $string['recommend:addinstance'] = 'Add a new Recommendation request activity';
 $string['recommend:delete'] = 'Delete any request or recommendation';
@@ -126,8 +124,11 @@ $string['rejectrecommendation'] = 'Reject';
 $string['requestdeleted'] = 'Request was deleted';
 $string['requestemailsubject'] = 'Request e-mail subject';
 $string['requestemailtemplate'] = 'Request e-mail template';
-$string['requestinstructions'] = 'Please use this form to send requests to up to {$a} people you would like to recommend you. They will be able to fill the recommendation form online.';
-$string['requestscreated'] = 'Recommendaiton request(s) created';
+$string['requestinstructions'] = 'Use this form to send requests to up to {$a} people who would be able to recommend you.
+Each recommending person will receive an e-mail with a link to an online recommendation form.
+Be careful when filling out this form, after recommendation request is sent you will not be able to make any changes.';
+$string['requestinstructionsmult'] = 'You do not need to send all request at once, you can come back at send additional requests at any time.';
+$string['requestscreated'] = 'Recommendaiton request(s) created.';
 $string['requestssettings'] = 'Requests settings';
 $string['requesttemplatebody'] = 'Dear {NAME}
 
