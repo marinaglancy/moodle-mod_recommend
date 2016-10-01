@@ -55,6 +55,7 @@ $string['eventrequestcreated'] = 'Recommendation request created';
 $string['eventrequestdeclined'] = 'Recommendation request declined';
 $string['eventrequestdeleted'] = 'Recommendation request deleted';
 $string['eventrequestrejected'] = 'Recommendation rejected';
+$string['eventrequestsent'] = 'Recommendation request sent';
 $string['labelcontents'] = 'Contents';
 $string['maxrequests'] = 'Maximum requests allowed';
 $string['maxrequests_help'] = 'Maximum number of requests a participant is allowed to send.
@@ -120,6 +121,8 @@ $string['recommendationtitle'] = 'Recommendation {$a}';
 $string['recommendatorname'] = 'Name of the recommending person';
 $string['recommendname'] = 'Name';
 $string['recommendname_help'] = 'Name of the activity as displayed on the course page. Not shown to the recommending person.';
+$string['resend'] = 'Re-send request';
+$string['sendnow'] = 'Send without delay';
 $string['rejectrecommendation'] = 'Reject';
 $string['requestdeleted'] = 'Request was deleted';
 $string['requestemailsubject'] = 'Request e-mail subject';
@@ -128,7 +131,8 @@ $string['requestinstructions'] = 'Use this form to send requests to up to {$a} p
 Each recommending person will receive an e-mail with a link to an online recommendation form.
 Be careful when filling out this form, after recommendation request is sent you will not be able to make any changes.';
 $string['requestinstructionsmult'] = 'You do not need to send all request at once, you can come back at send additional requests at any time.';
-$string['requestscreated'] = 'Recommendaiton request(s) created.';
+$string['requestscreated'] = 'Recommendation request(s) created.';
+$string['requestsent'] = 'Recommendation request sent';
 $string['requestssettings'] = 'Requests settings';
 $string['requesttemplatebody'] = 'Dear {NAME}
 

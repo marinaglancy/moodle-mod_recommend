@@ -38,6 +38,8 @@ class mod_recommend_request_manager {
     protected $object;
     /** @var array */
     protected $requests;
+    /** @var array */
+    protected $validatedrequests = [];
 
     /** Just created, will be sent by cron in 15 minutes */
     const STATUS_PENDING = 0;
@@ -200,6 +202,13 @@ class mod_recommend_request_manager {
                 $status .= '<br>'.html_writer::link($deleteurl, get_string('delete'),
                         ['class' => 'deleterequest']);
             }
+            if ($request->status == self::STATUS_REQUEST_SENT) {
+                $resendurl = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
+                    'action' => 'resendrequest', 'requestid' => $request->id,
+                    'sesskey' => sesskey()]);
+                $status .= '<br>'.html_writer::link($resendurl, get_string('resend', 'mod_recommend'),
+                        ['class' => 'resendrequest']);
+            }
             $name = $request->name;
             if ($canviewrequests && $request->status >= self::STATUS_RECOMMENDATION_COMPLETED) {
                 $url = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
@@ -225,6 +234,28 @@ class mod_recommend_request_manager {
             $summary[$request->status]++;
         }
         return $summary;
+    }
+
+    /**
+     * Validates that given requestid exists and belongs to the current module
+     * @param int $requestid
+     * @return bool
+     */
+    public function validate_request($requestid) {
+        global $DB;
+        if (!is_int($requestid) || $requestid <= 0) {
+            return null;
+        }
+        if (array_key_exists($requestid, $this->validatedrequests)) {
+            return $this->validatedrequests[$requestid];
+        }
+        $requests = $this->get_requests();
+        if (isset($requests[$requestid])) {
+            return $requests[$requestid];
+        }
+        $this->validatedrequests[$requestid] = $DB->get_record('recommend_request',
+                ['id' => $requestid, 'recommendid' => $this->object->id]);
+        return $this->validatedrequests[$requestid];
     }
 
     /**
@@ -385,68 +416,122 @@ class mod_recommend_request_manager {
             return 0;
         }
 
-        $userfields = user_picture::fields('u', null, 'userid');
-        $contextfields = context_helper::get_preload_record_columns_sql('ctx');
+        $userfields = user_picture::fields('u', null, 'userid', 'fromuser');
         $records = $DB->get_records_sql("
-                SELECT r.id, r.recommendid, r.name, r.email, r.status, r.secret, m.course,
-                    m.requesttemplatesubject AS subject,
-                    m.requesttemplatebody AS body,
-                    m.requesttemplatebodyformat AS bodyformat,
-                    cm.id AS cmid,
-                    $userfields, $contextfields
+                SELECT r.id, r.recommendid, r.name, r.email, r.status, r.secret,
+                    m.course,
+                    m.requesttemplatesubject,
+                    m.requesttemplatebody,
+                    m.requesttemplatebodyformat,
+                    $userfields
                 FROM {recommend_request} r
                 JOIN {user} u ON u.id = r.userid AND u.deleted = 0 AND u.suspended = 0
                 JOIN {recommend} m ON m.id = r.recommendid
-                JOIN {course_modules} cm ON cm.instance = m.id AND cm.module = ?
-                JOIN {context} ctx ON ctx.contextlevel = ? AND ctx.instanceid = cm.id
                 WHERE r.status = ? AND r.timerequested < ?
-                ORDER BY m.course, cm.id",
-                [$module->id, CONTEXT_MODULE,
-                    self::STATUS_PENDING, time() - $cooldowntimeout]);
-        if (!$records) {
-            return 0;
-        }
-
-        $site = get_site();
-        $siteadmin = generate_email_signoff();
-        $tempuser = fullclone(\core_user::get_support_user());
-        $tempuser->lastname = '';
-        $tempuser->mailformat = FORMAT_HTML;
+                ORDER BY m.course, r.recommendid",
+                [self::STATUS_PENDING, time() - $cooldowntimeout]);
 
         foreach ($records as $record) {
             context_helper::preload_from_record($record);
-            $context = context_module::instance($record->cmid);
-            $user = user_picture::unalias($record, null, 'userid');
-            $link = new moodle_url('/mod/recommend/recommend.php', ['s' => $record->secret]);
-            $options = ['context' => $context];
-            $replacements = [
-                '{PARTICIPANT}' => fullname($user, true),
-                '{NAME}' => $record->name,
-                '{LINK}' => $link->out(),
-                '{SITE}' => format_string($site->fullname, true, $options),
-                '{ADMIN}' => $siteadmin,
-            ];
-            $subject = str_replace(array_keys($replacements), array_values($replacements),
-                    format_string($record->subject, true, $options));
-            $body = str_replace(array_keys($replacements), array_values($replacements),
-                    format_text($record->body, $record->bodyformat, $options));
-
-            $tempuser->id = $user->id;
-            $tempuser->email = $record->email;
-            $tempuser->firstname = $record->name;
-            email_to_user($tempuser, \core_user::get_support_user(), $subject,
-                html_to_text($body), $body);
-
-            // TODO analyse if email failed?
-            $DB->update_record('recommend_request',
-                ['id' => $record->id, 'status' => self::STATUS_REQUEST_SENT]);
-
-            // Notify students that request was sent.
-            $record->status = self::STATUS_REQUEST_SENT;
-            $modinfo = get_fast_modinfo($record->course);
-            mod_recommend_recommendation::notify($record, $modinfo->cms[$record->cmid]);
+            $user = user_picture::unalias($record, null, 'userid', 'fromuser');
+            $recommend = (object)['id' => $record->recommendid,
+                'requesttemplatebody' => $record->requesttemplatebody,
+                'requesttemplatebodyformat' => $record->requesttemplatebodyformat,
+                'requesttemplatesubject' => $record->requesttemplatesubject,
+                'course' => $record->course];
+            self::email_request($record, $recommend, $user);
         }
 
         return count($records);
+    }
+
+    /**
+     * Can current user resend the request
+     * @param int $requestid
+     * @return bool
+     */
+    public function can_resend_request($requestid) {
+        if (!$request = $this->validate_request($requestid)) {
+            return false;
+        }
+        if ($request->status > self::STATUS_REQUEST_SENT) {
+            return false;
+        }
+        if (has_capability('mod/recommend:viewdetails', $this->cm->context)) {
+            // Can view any request.
+            return true;
+        }
+        // Check if it is the request for the current user and it is in pending status.
+        if (!has_capability('mod/recommend:request', $this->cm->context)) {
+            return false;
+        }
+        $requests = $this->get_requests();
+        return array_key_exists($requestid, $requests);
+    }
+
+    /**
+     * E-mails single recommendation request
+     * @param stdClass $request
+     * @param stdClass|null $recommend
+     * @param stdClass|null $fromuser
+     * @return bool
+     */
+    public static function email_request($request, $recommend = null, $fromuser = null) {
+        global $DB;
+        if (!is_object($request)) {
+            $request = $DB->get_record('recommend_request', ['id' => $request]);
+        }
+        if ($request->status > self::STATUS_REQUEST_SENT) {
+            return false;
+        }
+        if ($fromuser === null) {
+            $fromuser = $DB->get_record('user', ['id' => $request->userid]);
+        }
+        if ($recommend === null) {
+            $recommend = $DB->get_record('recommend',
+                ['id' => $request->recommendid], '*', MUST_EXIST);
+        }
+        $modinfo = get_fast_modinfo($recommend->course);
+        $cm = $modinfo->instances['recommend'][$recommend->id];
+        $context = context_module::instance($cm->id);
+
+        $site = get_site();
+        $siteadmin = generate_email_signoff();
+
+        $link = new moodle_url('/mod/recommend/recommend.php', ['s' => $request->secret]);
+        $options = ['context' => $context];
+        $replacements = [
+            '{PARTICIPANT}' => fullname($fromuser, true),
+            '{NAME}' => $request->name,
+            '{LINK}' => $link->out(),
+            '{SITE}' => format_string($site->fullname, true, $options),
+            '{ADMIN}' => $siteadmin,
+        ];
+        $subject = str_replace(array_keys($replacements), array_values($replacements),
+                format_string($recommend->requesttemplatesubject, true, $options));
+        $body = str_replace(array_keys($replacements), array_values($replacements),
+                format_text($recommend->requesttemplatebody,
+                        $recommend->requesttemplatebodyformat, $options));
+
+        $tempuser = fullclone(\core_user::get_support_user());
+        $tempuser->firstname = $request->name;
+        $tempuser->lastname = '';
+        $tempuser->mailformat = FORMAT_HTML;
+        $tempuser->id = $fromuser->id;
+        $tempuser->email = $request->email;
+        email_to_user($tempuser, \core_user::get_support_user(), $subject,
+            html_to_text($body), $body);
+
+        if ($request->status < self::STATUS_REQUEST_SENT) {
+            $DB->update_record('recommend_request',
+                ['id' => $request->id, 'status' => self::STATUS_REQUEST_SENT]);
+
+            // Notify students that request was sent.
+            $request->status = self::STATUS_REQUEST_SENT;
+            mod_recommend_recommendation::notify($request, $cm);
+        }
+        \mod_recommend\event\request_sent::create_from_request($cm, $request)->trigger();
+
+        return true;
     }
 }

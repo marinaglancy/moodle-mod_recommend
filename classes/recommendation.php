@@ -186,6 +186,17 @@ class mod_recommend_recommendation {
         $status = $OUTPUT->pix_icon('status'.$this->request->status, '', 'mod_recommend');
         echo '<b>'.get_string('status', 'recommend').':</b> ';
         echo $status.' '.get_string('status'.$this->request->status, 'recommend').'<br>';
+        if ($this->request->status <= mod_recommend_request_manager::STATUS_REQUEST_SENT) {
+            $resendurl = new moodle_url('/mod/recommend/view.php', ['id' => $this->cm->id,
+                'action' => 'resendrequest', 'requestid' => $this->request->id,
+                'sesskey' => sesskey(), 'returnto' => 'viewrequest']);
+            if ($this->request->status == mod_recommend_request_manager::STATUS_REQUEST_SENT) {
+                $string = get_string('resend', 'mod_recommend');
+            } else {
+                $string = get_string('sendnow', 'mod_recommend');
+            }
+            echo html_writer::link($resendurl, $string, ['class' => 'resendrequest']) . '<br>';
+        }
 
         $replies = $DB->get_records('recommend_reply', ['requestid' => $this->request->id]);
         if ($replies) {

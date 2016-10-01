@@ -63,7 +63,19 @@ if ($action === null) {
     }
     $title = get_string('addrequest', 'mod_recommend');
     $PAGE->navbar->add($title);
-} else if ($action === 'deleterequest' && $requestid) {
+} else if ($action === 'resendrequest' && ($request = $manager->validate_request($requestid))) {
+    if ($manager->can_resend_request($requestid)) {
+        require_sesskey();
+        $manager->email_request($request, $recommend);
+        \core\notification::add(get_string('requestsent', 'mod_recommend'),
+                core\output\notification::NOTIFY_SUCCESS);
+    }
+    if (optional_param('returnto', '', PARAM_ALPHA) === 'viewrequest') {
+        redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']));
+    } else {
+        redirect($viewurl);
+    }
+} else if ($action === 'deleterequest' && $manager->validate_request($requestid)) {
     $message = '';
     $status = \core\output\notification::NOTIFY_SUCCESS;
     if ($manager->can_delete_request($requestid)) {
@@ -76,7 +88,7 @@ if ($action === null) {
         $status = \core\output\notification::NOTIFY_ERROR;
     }
     redirect($viewurl, $message, 3, $status);
-} else if ($action === 'acceptrequest' && $requestid &&
+} else if ($action === 'acceptrequest' && $manager->validate_request($requestid) &&
         $manager->can_accept_requests() && confirm_sesskey()) {
     $message = '';
     if ($manager->accept_request($requestid)) {
@@ -84,7 +96,7 @@ if ($action === null) {
     }
     redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']),
             $message, 3, \core\output\notification::NOTIFY_SUCCESS);
-} else if ($action === 'rejectrequest' && $requestid &&
+} else if ($action === 'rejectrequest' && $manager->validate_request($requestid) &&
         $manager->can_accept_requests() && confirm_sesskey()) {
     $message = '';
     if ($manager->reject_request($requestid)) {
@@ -92,7 +104,8 @@ if ($action === null) {
     }
     redirect(new moodle_url($viewurl, ['requestid' => $requestid, 'action' => 'viewrequest']),
             $message, 3, \core\output\notification::NOTIFY_SUCCESS);
-} else if ($action === 'viewrequest' && $requestid && $manager->can_view_requests()) {
+} else if ($action === 'viewrequest' && $manager->validate_request($requestid) &&
+        $manager->can_view_requests()) {
     $request = new mod_recommend_recommendation(null, $requestid);
     $title = $request->get_title();
     $PAGE->navbar->add($title);
