@@ -28,8 +28,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_recommend';
-$plugin->version = 2016083100;
-$plugin->release = 'v1.2';
+$plugin->version = 2016100100;
+$plugin->release = 'v1.3';
 $plugin->requires = 2016052300;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 0;

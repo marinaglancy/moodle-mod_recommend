@@ -418,7 +418,7 @@ class mod_recommend_request_manager {
 
         $userfields = user_picture::fields('u', null, 'userid', 'fromuser');
         $records = $DB->get_records_sql("
-                SELECT r.id, r.recommendid, r.name, r.email, r.status, r.secret,
+                SELECT r.*,
                     m.course,
                     m.requesttemplatesubject,
                     m.requesttemplatebody,

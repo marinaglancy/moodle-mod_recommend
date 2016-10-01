@@ -41,15 +41,9 @@ class request_sent extends request_updated {
      * @return string
      */
     public function get_description() {
-        if ($this->userid) {
-            return "The user with id '$this->userid' asked to re-send a recommendation request '{$this->objectid}' " .
-                "for user with id '$this->relateduserid' in the activity with " .
-                "course module id '$this->contextinstanceid'.";
-        } else {
-            return "Recommendation request '{$this->objectid}' " .
+        return "Recommendation request '{$this->objectid}' " .
                 "for user with id '$this->relateduserid' in the activity with " .
                 "course module id '$this->contextinstanceid' was sent";
-        }
     }
 
     /**
