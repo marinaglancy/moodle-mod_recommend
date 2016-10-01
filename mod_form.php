@@ -177,5 +177,14 @@ class mod_recommend_mod_form extends moodleform_mod {
     public function data_preprocessing(&$defaultvalues) {
         // Set up the completion checkbox which is not part of standard data.
         $defaultvalues['completionrequired'] = !empty($defaultvalues['requiredrecommend']) ? 1 : 0;
+
+        // Pre process request template body for the editor. Files are not allowed
+        // so we don't need to worry about calling file_prepare_draft_area().
+        if (array_key_exists('requesttemplatebody', $defaultvalues)) {
+            $defaultvalues['requesttemplatebodyeditor'] = array(
+                'text' => $defaultvalues['requesttemplatebody'],
+                'format' => $defaultvalues['requesttemplatebodyformat'],
+            );
+        }
     }
 }

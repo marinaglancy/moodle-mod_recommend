@@ -8,5 +8,6 @@ and for the teachers to view the provided recommendations.
 Release notes:
 --------------
 
-1.3
+1.3.1
 * Possibility to re-send the requests
+* Fixed bug with not updating the template in the edit form
